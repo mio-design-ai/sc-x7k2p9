@@ -4480,7 +4480,7 @@ function handleCorrect() {
       $('overlay').classList.remove('active');
       if (state.adv.n >= 7) finishAdventure();
       else nextAdvQuestion();
-    }, 750);
+    }, 1300);
     return;
   }
   if (state.test) {
@@ -4492,7 +4492,7 @@ function handleCorrect() {
       $('overlay').classList.remove('active');
       if (state.test.n >= 8) finishTest();
       else nextTestQuestion();
-    }, 700);
+    }, 1200);
     return;
   }
   state.combo++;
@@ -4505,7 +4505,9 @@ function handleCorrect() {
     : (state.firstTryPending ? '⭐いっぱつせいかい！ ' : '') + playerName() + templates[Math.floor(Math.random()*templates.length)];
   p.classList.add('show');
   document.querySelectorAll('.choice').forEach(c => c.style.pointerEvents='none');
-  setTimeout(state.isBossQ ? bossHit : enterBreakMode, 550);
+  // ほめことばを ゆっくり よめる ながさに（リベンジ・いっぱつせいかいは すこし ながめ）
+  const praiseMs = wasRevenge ? 2200 : (state.firstTryPending ? 1800 : 1500);
+  setTimeout(state.isBossQ ? bossHit : enterBreakMode, praiseMs);
 }
 function handleWrong(btn) {
   sfx.bad();
