@@ -1083,19 +1083,38 @@ const sfx = {
 };
 
 // ---------- BGM（しずかに ひろがる マイクラの おんがくふう） ----------
+// 🎧 BGMせんようの「やわらかフィルター＋うっすら残響」バス。電子音のトゲを けずる
+let bgmBusNode = null;
+function bgmBus() {
+  const c = ctx();
+  if (bgmBusNode) return bgmBusNode;
+  const inG = c.createGain(); inG.gain.value = 1;
+  const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400; lp.Q.value = .4;
+  inG.connect(lp); lp.connect(c.destination);
+  // やまびこ風の やわらかい残響（フィードバックディレイ）
+  const dl = c.createDelay(1); dl.delayTime.value = .28;
+  const fb = c.createGain(); fb.gain.value = .3;
+  const damp = c.createBiquadFilter(); damp.type = 'lowpass'; damp.frequency.value = 1500;
+  const wet = c.createGain(); wet.gain.value = .17;
+  lp.connect(dl); dl.connect(damp); damp.connect(fb); fb.connect(dl);
+  damp.connect(wet); wet.connect(c.destination);
+  bgmBusNode = inG;
+  return inG;
+}
 function padNote(freq, dur, vol, when, atk) {
   try {
     const c = ctx();
     const t = c.currentTime + (when || 0);
-    [0, 1.6].forEach(det => {
+    const a = Math.max(atk || 0.07, 0.05);   // 立ち上がりを ふんわりに
+    [0, 1].forEach(det => {
       const o = c.createOscillator();
       const g = c.createGain();
-      o.type = det === 0 ? 'sine' : 'triangle';
-      o.frequency.value = freq + det;
+      o.type = 'sine';
+      o.frequency.value = det === 0 ? freq : freq * 1.003;  // ごく浅い ゆらぎだけ
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(det === 0 ? vol : vol*.4, t + (atk || 0.07));
+      g.gain.exponentialRampToValueAtTime(det === 0 ? vol : vol*.35, t + a);
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(g).connect(c.destination);
+      o.connect(g).connect(bgmBus());
       o.start(t); o.stop(t + dur + .05);
     });
   } catch(e){}
@@ -1110,8 +1129,27 @@ function kickAt(when, vol) {
     o.frequency.exponentialRampToValueAtTime(45, t + .1);
     g.gain.setValueAtTime(vol || .13, t);
     g.gain.exponentialRampToValueAtTime(.001, t + .14);
-    o.connect(g).connect(c.destination);
+    o.connect(g).connect(bgmBus());
     o.start(t); o.stop(t + .16);
+  } catch(e){}
+}
+// ハイハット: きんぞくの square音を やめて、こまかい ノイズの「シャッ」に（みみに やさしい）
+let hatNoiseBuf = null;
+function hatAt(when, vol) {
+  try {
+    const c = ctx(), t = c.currentTime + (when || 0);
+    if (!hatNoiseBuf) {
+      hatNoiseBuf = c.createBuffer(1, Math.floor(c.sampleRate * .06), c.sampleRate);
+      const d = hatNoiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    const s = c.createBufferSource(); s.buffer = hatNoiseBuf;
+    const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 6500;
+    const g = c.createGain();
+    g.gain.setValueAtTime(vol || .05, t);
+    g.gain.exponentialRampToValueAtTime(.001, t + .04);
+    s.connect(hp).connect(g).connect(c.destination);
+    s.start(t); s.stop(t + .06);
   } catch(e){}
 }
 // へや ごとに かわる BGM
@@ -1190,8 +1228,8 @@ function startBgm(track) {
       if (bSeq) { const bf = bSeq[bgmStep]; if (bf) padNote(bf, T.bd || .4, T.bv || .07, when, .015); }
       else if (bgmStep % bassEvery === 0) padNote(T.bass[Math.floor(bgmStep/bassEvery) % T.bass.length], T.bd || .8, T.bv || .06, base);
       if (T.kick && bgmStep % 4 === 0) kickAt(base, .11);
-      if (T.hatP) { if (T.hatP[bgmStep % T.hatP.length]) beepRaw(2600, .035, 'square', .012, when); }
-      else if (T.hat && bgmStep % 4 === 2) beepRaw(2400, .04, 'square', .015, base);
+      if (T.hatP) { if (T.hatP[bgmStep % T.hatP.length]) hatAt(when, .035); }
+      else if (T.hat && bgmStep % 4 === 2) hatAt(base, .04);
       // うすい 和音パッドで ながれを つくる
       if (T.ch && bgmStep % 8 === 0) {
         const chSet = even ? T.ch[0] : T.ch[1];
