@@ -1204,11 +1204,12 @@ let bgmTimer = null, bgmStep = 0, bgmBar = 0, bgmTrack = 'title', bgmNextT = 0;
 // 🎵 本物のBGMファイル（魔王魂）。URLで開いたときは こちらを再生し、
 //    オフライン・ファイル単体配布・読み込み失敗時は 自作シンセ曲に自動フォールバック
 const BGM_FILES = {
-  title: { src:'bgm/title.mp3', vol:.50 },   // シャイニングスター（歌詞あり）
-  study: { src:'bgm/study.mp3', vol:.20 },   // ヒーリング17（音量小さめ指定）
-  boss:  { src:'bgm/boss.mp3',  vol:.45 },   // ファンタジー15
-  shop:  { src:'bgm/shop.mp3',  vol:.45 },   // アコースティック50
-  cave:  { src:'bgm/cave.mp3',  vol:.22 },   // フィールド11（音量小さめ指定）
+  title: { src:'bgm/title.mp3', vol:.25 },   // シャイニングスター（歌詞あり）※タイトルがめんだけ
+  map:   { src:'bgm/map.mp3',   vol:.25 },   // シャイニングスター（歌詞なし）※マップほかのがめん
+  study: { src:'bgm/study.mp3', vol:.10 },   // ヒーリング17（音量小さめ指定）
+  boss:  { src:'bgm/boss.mp3',  vol:.22 },   // ファンタジー15
+  shop:  { src:'bgm/shop.mp3',  vol:.22 },   // アコースティック50
+  cave:  { src:'bgm/cave.mp3',  vol:.11 },   // フィールド11（音量小さめ指定）
 };
 let bgmAudio = null;
 const bgmFileBad = {};
@@ -1292,7 +1293,7 @@ function resumeRoomBgm() {
   if (screens.game.classList.contains('active')) {
     startBgm(state.bossHp > 0 ? 'boss' : (state.depth >= 5 ? 'cave' : 'study'));
   } else {
-    startBgm('title');
+    startBgm(screens.title.classList.contains('active') ? 'title' : 'map');
   }
 }
 
@@ -2843,8 +2844,9 @@ function showScreen(name){
   Object.values(screens).forEach(s=>s.classList.remove('active'));
   screens[name].classList.add('active');
   // へやごとの BGM（さいしょの タップまでは じどうさいせいしない）
+  // タイトルがめんだけ うたごえあり。マップ・そのほかは うたごえなし（かんがえる じゃまを しない）
   if (name !== 'game') {
-    if (audioCtx) startBgm('title');
+    if (audioCtx) startBgm(name === 'title' ? 'title' : 'map');
     else stopBgm();
   }
 }
