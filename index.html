@@ -1204,18 +1204,23 @@ let bgmTimer = null, bgmStep = 0, bgmBar = 0, bgmTrack = 'title', bgmNextT = 0;
 // 🎵 本物のBGMファイル（魔王魂）。URLで開いたときは こちらを再生し、
 //    オフライン・ファイル単体配布・読み込み失敗時は 自作シンセ曲に自動フォールバック
 const BGM_FILES = {
-  title: { src:'bgm/title.mp3', vol:.25 },   // シャイニングスター（歌詞あり）※タイトルがめんだけ
-  map:   { src:'bgm/map.mp3',   vol:.25 },   // シャイニングスター（歌詞なし）※マップほかのがめん
-  study: { src:'bgm/study.mp3', vol:.10 },   // ヒーリング17（音量小さめ指定）
-  boss:  { src:'bgm/boss.mp3',  vol:.22 },   // ファンタジー15
-  shop:  { src:'bgm/shop.mp3',  vol:.22 },   // アコースティック50
-  cave:  { src:'bgm/cave.mp3',  vol:.11 },   // フィールド11（音量小さめ指定）
+  // ※mp3は 音われ防止のため -16LUFS / ピーク-2dB に そろえてある（もとの音源より約7dB小さい）。
+  //   なので vol の数字は 大きく見えるが、みみに とどく音は まえより 小さい。
+  title: { src:'bgm/title.mp3', vol:.38 },   // シャイニングスター（歌詞あり）※タイトルがめんだけ
+  map:   { src:'bgm/map.mp3',   vol:.38 },   // シャイニングスター（歌詞なし）※マップ・じぶんキャラ・たからのへや
+  study: { src:'bgm/study.mp3', vol:.10 },   // ヒーリング17（いちばん小さめ＝かんがえる じゃまを しない）
+  boss:  { src:'bgm/boss.mp3',  vol:.36 },   // ファンタジー15
+  shop:  { src:'bgm/shop.mp3',  vol:.31 },   // アコースティック50
+  cave:  { src:'bgm/cave.mp3',  vol:.14 },   // フィールド11（音量小さめ指定）
 };
 let bgmAudio = null;
 const bgmFileBad = {};
+// 🔇 じゅぎょう・かいせつの あいだは BGMを とめる（せんせいの こえに しゅうちゅうできるように）
+let bgmLessonMute = false;
 function startBgm(track) {
   if (track) bgmTrack = track;
   stopBgm();
+  if (bgmLessonMute) return;   // じゅぎょう中は なにも ならさない
   const f = BGM_FILES[bgmTrack];
   if (f && !bgmFileBad[bgmTrack] && location.protocol !== 'file:') {
     try {
@@ -1242,6 +1247,7 @@ function startBgm(track) {
 }
 function startBgmSynth(track) {
   if (track) bgmTrack = track;
+  if (bgmLessonMute) { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } return; }
   const T = BGM_TRACKS[bgmTrack] || BGM_TRACKS.title;
   if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
   bgmStep = 0; bgmBar = 0;
@@ -1288,8 +1294,11 @@ function stopBgm() {
   if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
   try { if (bgmAudio) bgmAudio.pause(); } catch(e){}
 }
+// じゅぎょうを ひらいたら おとを けす / とじたら もとの へやの きょくに もどす
+function muteBgmForLesson() { bgmLessonMute = true; stopBgm(); }
+function unmuteBgmAfterLesson() { bgmLessonMute = false; }
 function resumeRoomBgm() {
-  if (!audioCtx) return;
+  if (!audioCtx || bgmLessonMute) return;
   if (screens.game.classList.contains('active')) {
     startBgm(state.bossHp > 0 ? 'boss' : (state.depth >= 5 ? 'cave' : 'study'));
   } else {
@@ -3861,6 +3870,7 @@ function showMap() {
 let teachState = null;
 function openTeach(unit, thenStart) {
   teachState = { unit, idx: 0, thenStart };
+  muteBgmForLesson();   // かいせつ中は BGMなし
   $('teachUnitName').textContent = `ふくろうせんせいの じゅぎょう「${unit.name}」`;
   renderTeachPage();
   $('teachOverlay').classList.add('active');
@@ -4181,14 +4191,17 @@ $('teachNext').addEventListener('click', () => {
     clearTeachAnim();
     $('teachOverlay').classList.remove('active');
     store.set('teach_'+u.id, true);
+    unmuteBgmAfterLesson();   // じゅぎょうが おわったので BGMを もどす
     if (teachState.thenStart) startGame(u);
-    else if (state.adv && !state.current) nextAdvQuestion();
+    else { if (state.adv && !state.current) nextAdvQuestion(); resumeRoomBgm(); }
   }
 });
 $('teachClose').addEventListener('click', () => {
   clearTeachAnim();
   $('teachOverlay').classList.remove('active');
+  unmuteBgmAfterLesson();
   if (state.adv && !state.current) nextAdvQuestion();
+  resumeRoomBgm();
 });
 function renderVoiceBtn() {
   $('voiceBtn').textContent = voiceOn ? '🔈こえ' : '🔇こえ';
@@ -4386,8 +4399,9 @@ function openTreasure() {
   });
   $('tStats').innerHTML = `👤 ${playerName()}　Lv.${playerLevel()}（せいかい ${store.get('xp',0)}もん）<br>🔥 れんぞく ${state.streak}にち　👑 たおした ボス ${store.get('bossKills',0)}たい`;
   $('treasureOverlay').classList.add('active');
+  if (audioCtx) startBgm('map');   // たからのへや＝うたごえなし
 }
-$('treasureClose').addEventListener('click', () => $('treasureOverlay').classList.remove('active'));
+$('treasureClose').addEventListener('click', () => { $('treasureOverlay').classList.remove('active'); resumeRoomBgm(); });
 
 // ---------- ステージ生成 ----------
 function blockTypeForDepth() {
@@ -5683,6 +5697,17 @@ function startGame(unit) {
     }, 500);
   }
 }
+
+// 🎵 さいしょの タップで おんがくを スタート
+//    ブラウザの ルールで ページを ひらいた しゅんかんには ならせないため、
+//    どこを さわっても すぐ タイトルの きょくが はじまるようにする（キャプチャで さきに うごかす）
+function unlockAudioOnce() {
+  if (audioCtx) return;
+  try { ctx(); } catch(e) { return; }
+  resumeRoomBgm();
+}
+['pointerdown','touchstart','mousedown','keydown'].forEach(ev =>
+  document.addEventListener(ev, unlockAudioOnce, true));
 
 // ---------- ボタン ----------
 $('startBtn').addEventListener('click', () => { sfx.tap(); showMap(); });
