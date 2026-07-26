@@ -641,7 +641,7 @@
     <button class="btn" id="farmBtn">🌱 はたけ</button>
   </div>
   <button class="btn" id="settingsBtn">⚙️ おうちのかたは こちら</button>
-  <div id="unofficialNote">※Minecraft/Mojang公式とは関係のない非公式のファン作品です</div>
+  <div id="unofficialNote">※Minecraft/Mojang公式とは関係のない非公式のファン作品です<br>音楽: 魔王魂</div>
 </div>
 
 <!-- おうちのかた かくにんゲート -->
@@ -1201,10 +1201,48 @@ const BGM_TRACKS = {
   },
 };
 let bgmTimer = null, bgmStep = 0, bgmBar = 0, bgmTrack = 'title', bgmNextT = 0;
+// 🎵 本物のBGMファイル（魔王魂）。URLで開いたときは こちらを再生し、
+//    オフライン・ファイル単体配布・読み込み失敗時は 自作シンセ曲に自動フォールバック
+const BGM_FILES = {
+  title: { src:'bgm/title.mp3', vol:.50 },   // シャイニングスター（歌詞あり）
+  study: { src:'bgm/study.mp3', vol:.20 },   // ヒーリング17（音量小さめ指定）
+  boss:  { src:'bgm/boss.mp3',  vol:.45 },   // ファンタジー15
+  shop:  { src:'bgm/shop.mp3',  vol:.45 },   // アコースティック50
+  cave:  { src:'bgm/cave.mp3',  vol:.22 },   // フィールド11（音量小さめ指定）
+};
+let bgmAudio = null;
+const bgmFileBad = {};
 function startBgm(track) {
   if (track) bgmTrack = track;
-  const T = BGM_TRACKS[bgmTrack] || BGM_TRACKS.title;
   stopBgm();
+  const f = BGM_FILES[bgmTrack];
+  if (f && !bgmFileBad[bgmTrack] && location.protocol !== 'file:') {
+    try {
+      if (!bgmAudio) {
+        bgmAudio = new Audio();
+        bgmAudio.loop = true;
+        bgmAudio.preload = 'auto';
+        bgmAudio.addEventListener('error', () => {
+          if (bgmAudio._track) bgmFileBad[bgmAudio._track] = true;
+          startBgmSynth();
+        });
+      }
+      bgmAudio._track = bgmTrack;
+      if (bgmAudio.getAttribute('src') !== f.src) bgmAudio.src = f.src;
+      bgmAudio.volume = f.vol;
+      if (state.music) {
+        const p = bgmAudio.play();
+        if (p && p.catch) p.catch(() => {});   // 自動再生ブロック時は つぎのタップで鳴る
+      }
+      return;
+    } catch(e) { bgmFileBad[bgmTrack] = true; }
+  }
+  startBgmSynth();
+}
+function startBgmSynth(track) {
+  if (track) bgmTrack = track;
+  const T = BGM_TRACKS[bgmTrack] || BGM_TRACKS.title;
+  if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
   bgmStep = 0; bgmBar = 0;
   const steps = T.steps || 16;
   const bassEvery = T.bassEvery || 4;
@@ -1245,7 +1283,10 @@ function startBgm(track) {
   tick();
   bgmTimer = setInterval(tick, 90);
 }
-function stopBgm() { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } }
+function stopBgm() {
+  if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
+  try { if (bgmAudio) bgmAudio.pause(); } catch(e){}
+}
 function resumeRoomBgm() {
   if (!audioCtx) return;
   if (screens.game.classList.contains('active')) {
@@ -5653,6 +5694,8 @@ $('soundBtn').addEventListener('click', () => {
 $('musicBtn').addEventListener('click', () => {
   state.music = !state.music;
   $('musicBtn').style.opacity = state.music ? 1 : .4;
+  if (!state.music) { try { if (bgmAudio) bgmAudio.pause(); } catch(e){} }
+  else startBgm();
 });
 $('missionBtn').addEventListener('click', () => { renderMissionList(); $('missionOverlay').classList.add('active'); });
 $('missionClose').addEventListener('click', () => $('missionOverlay').classList.remove('active'));
