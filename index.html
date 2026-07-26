@@ -1712,7 +1712,7 @@ const CURRICULUM = {
       { t:'3つ あっても だいじょうぶ！', b:'まえから じゅんばんに けいさん！<br>2+1=3。 つぎに 3+2で <b>5</b>！<br>ひとつずつ ゆっくりで OK！', v:{type:'plus', a:2, b:1} },
     ]},
     { id:'g1-clock', icon:'🕐', name:'とけい（なんじ・なんじはん）', gen:'clock1', teach:[
-      { t:'みじかい はりが「じ」！', b:'ながい はりが 12なら「○じ」、6なら「○じはん」！', v:{type:'clock', h:3, m:0} },
+      { t:'とけいを よんでみよう！', anim:{kind:'clock', lesson:'clock1'} },
     ]},
     { id:'g1-length', icon:'📏', name:'ながさくらべ', gen:'length1', teach:[
       { t:'ますで はかろう！', b:'ますの かずを かぞえると ながさが わかる！', v:{type:'bar', n:5} },
@@ -1764,16 +1764,17 @@ const CURRICULUM = {
       { t:'まえから ジャンプ！', b:'7×6は、7×5＝35に 7を たして <b>42</b>！', v:{type:'dots', a:7, b:6} },
     ]},
     { id:'g2-kuku891', icon:'🏆', name:'九九④（8・9・1の だん）', gen:'kuku891', teach:[
-      { t:'9のだんの ひみつ！', b:'こたえの すうじを たすと ぜんぶ 9に なるよ！', v:{type:'dots', a:9, b:4} },
+      { t:'まえの こたえに たすだけ！', b:'9のだんは 9ずつ ふえるよ。<br>9×3＝27に 9を たすと、9×4＝<b>36</b>！', v:{type:'dots', a:9, b:4} },
+      { t:'9のだんの ひみつ！', b:'こたえの すうじを たすと ぜんぶ 9！<br>36 → 3+6＝9 ✨ たしかめに つかえるよ！', v:{type:'dots', a:9, b:4} },
     ]},
     { id:'g2-kaimono', icon:'🛒', name:'おかいもの（おかね）', gen:'kaimono', teach:[
-      { t:'おつりは ひきざん！', b:'はらった おかね − ねだん 🪙', v:null },
+      { t:'おつりは ひきざん！', b:'おつり ＝ はらった おかね − ねだん 🪙<br>100えんで 30えんの あめを かうと…<br>100−30＝<b>70えん</b>が おつり！', v:null },
     ]},
     { id:'g2-clock', icon:'🕑', name:'とけい（なんじなんぷん）', gen:'clock2', teach:[
-      { t:'ながい はりは ×5！', b:'ながい はりの すうじ ×5が「ふん」！', v:{type:'clock', h:3, m:25} },
+      { t:'なんじなんぷん？', anim:{kind:'clock', lesson:'clock2'} },
     ]},
     { id:'g2-timeDur', icon:'⏳', name:'時こくと 時間（なんぷんあと）', gen:'timeDur', teach:[
-      { t:'はりを すすめて みよう！', b:'3じから 30ぷん たつと…<br>ながい はりが 6まで すすんで<br><b>3じ30ぷん</b>！', v:{type:'clock', h:3, m:0} },
+      { t:'はりを すすめて みよう！', anim:{kind:'clock', lesson:'timeDur'} },
     ]},
     { id:'g2-length', icon:'📏', name:'ながさ①（cm・mm）', gen:'length2', teach:[
       { t:'1cm ＝ 10mm！', b:'cmを mmに するには ×10！', v:{type:'bar', n:10} },
@@ -1799,7 +1800,8 @@ const CURRICULUM = {
       { t:'0の かけざんの ひみつ', b:'0を かけると ぜんぶ <b>0</b>！　0×7＝0！', v:null },
     ]},
     { id:'g3-divE', icon:'🍕', name:'わりざん①（2〜5の だんで）', gen:'divEasy', teach:[
-      { t:'おなじ かずに わける！', b:'12÷3は「3×なに＝12？」→ <b>4</b>！', v:{type:'dots', a:3, b:4} },
+      { t:'おなじ かずに わける！', b:'12÷3は「12こを 3にんで わけると 1人なんこ？」<br>ドットを みてみよう。3れつに わかれているね！', v:{type:'dots', a:3, b:4} },
+      { t:'九九で さがせる！', b:'「3×なに＝12？」を 九九で さがそう。<br>3×4＝12 だから、こたえは <b>4</b>！', v:{type:'dots', a:3, b:4} },
     ]},
     { id:'g3-divH', icon:'🍕', name:'わりざん②（6〜9の だんで）', gen:'divHard', teach:[
       { t:'九九で さがそう！', b:'56÷8は 8×7＝56 → <b>7</b>！', v:null },
@@ -1823,10 +1825,10 @@ const CURRICULUM = {
       { t:'3けたでも やりかたは おなじ！', anim:{kind:'hissan', a:213, op:'×', b:3} },
     ]},
     { id:'g3-clock', icon:'🕒', name:'とけいと じかん', gen:'clock3', teach:[
-      { t:'60ぷんで 1じかん！', b:'ながい はりが 1しゅうで つぎの「じ」！', v:{type:'clock', h:3, m:40} },
+      { t:'60ぷんで 1じかん！', anim:{kind:'clock', lesson:'clock3'} },
     ]},
     { id:'g3-length', icon:'📏', name:'ながさ（km・m）', gen:'length3', teach:[
-      { t:'1km ＝ 1000m！', b:'ながい みちのりは kmで はかろう！', v:null },
+      { t:'1km ＝ 1000m！', b:'「キロ」は 1000この まとまりの こと！<br>だから 1km＝<b>1000m</b>。<br>ながい みちのりは kmで はかろう！', v:null },
     ]},
     { id:'g3-weight', icon:'⚖️', name:'おもさ（g・kg）', gen:'weight', teach:[
       { t:'おもさの たんい！', b:'⚖️ 1えんだま 1こが <b>1g</b>！<br>1000gで <b>1kg</b>！<br>ランドセルは やく 1kgだよ！', v:null },
@@ -1953,7 +1955,7 @@ function genProblem(gen) {
       const d2 = gen==='divEasy' ? randInt(2,5) : randInt(6,9);
       const q = randInt(2,9), n = d2*q;
       return { text:`${n} ÷ ${d2} = ?`, ans:String(q), choices:numChoices(q,[q+1,q-1,d2]),
-        hint:`${d2}×なに＝${n}？<br>${d2}×${q}=${n} だから こたえは <b>${q}</b>`, visual:null };
+        hint:`わりざんは「${d2}×なに＝${n}？」を さがす けいさん！<br>九九の ${d2}のだんで さがそう。${d2}×${q}=${n}！<br>こたえは <b>${q}</b>`, visual:null };
     }
     case 'divRemEasy': case 'divRemHard': {
       const d2 = gen==='divRemEasy' ? randInt(3,5) : randInt(6,9);
@@ -1973,7 +1975,7 @@ function genProblem(gen) {
       const ans = a*b;
       const at0 = Math.floor(a/10)*10, ao = a%10;
       return { text:`${a} × ${b} = ?`, vertical:{a, op:'×', b}, ans:String(ans), choices:numChoices(ans,[ans+b,ans-b,ans+10]),
-        hint:`${ao}×${b}=${ao*b}、${at0}×${b}=${at0*b}<br>あわせて <b>${ans}</b>`, visual:null };
+        hint:`みぎの れつから じゅんばんに！<br>① ${ao}×${b}=${ao*b}　② ${at0}×${b}=${at0*b}<br>あわせて <b>${ans}</b>`, visual:null };
     }
     case 'num100': {
       const t100 = randInt(0,2);
@@ -2034,7 +2036,7 @@ function genProblem(gen) {
       if (tW === 1) {
         const n = randInt(30,99)*100;
         return { text:`${n}は 100が なんこ あつまった かず？`, ans:String(n/100), choices:numChoices(n/100,[n/10,n/100+10,n/100-10]),
-          hint:`100が 10こで 1000。<br>${n}は 100が <b>${n/100}</b>こ！`, visual:null };
+          hint:`${n}を わけよう！<br>${Math.floor(n/1000)}000は 100が ${Math.floor(n/1000)*10}こ。<br>${n%1000}は 100が ${(n%1000)/100}こ。<br>あわせて <b>${n/100}</b>こ！`, visual:null };
       }
       const n = randInt(2996,9998);
       return { text:`${n}の つぎの かずは？`, ans:String(n+1), choices:numChoices(n+1,[n-1,n+10,n+100]),
@@ -2070,8 +2072,9 @@ function genProblem(gen) {
     case 'mul3x1': {
       const a = randInt(112,432), b = randInt(2,3);
       const ans = a*b;
+      const o1 = a%10, t1 = Math.floor(a/10)%10*10, h1 = Math.floor(a/100)*100;
       return { text:`${a} × ${b} = ?`, vertical:{a, op:'×', b}, ans:String(ans), choices:numChoices(ans,[ans+b,ans-b,ans+100]),
-        hint:`3けたでも やりかたは おなじ！<br>みぎから じゅんばんに かけよう！<br>こたえは <b>${ans}</b>`, visual:null };
+        hint:`みぎの れつから じゅんばんに！<br>① ${o1}×${b}=${o1*b}　② ${t1}×${b}=${t1*b}　③ ${h1}×${b}=${h1*b}<br>あわせて <b>${ans}</b>`, visual:null };
     }
     case 'decimal': {
       const tD = randInt(0,2);
@@ -2106,7 +2109,7 @@ function genProblem(gen) {
     case 'weight': {
       const tG = randInt(0,2);
       if (tG === 0) return { text:'1kg ＝ ？g', ans:'1000', choices:shuffle(['1000','100','10','500']),
-        hint:`⚖️ 1kg＝<b>1000g</b>！`, visual:null };
+        hint:`⚖️ 「キロ」は 1000この まとまり！<br>1kg＝<b>1000g</b>！`, visual:null };
       if (tG === 1) {
         const a = randInt(1,5), b2 = randInt(1,9)*100;
         return { text:`${a}kg${b2}g ＝ ？g`, ans:String(a*1000+b2), choices:numChoices(a*1000+b2,[a*100+b2,a*1000+b2+100,a*1000+b2-100]),
@@ -2122,7 +2125,7 @@ function genProblem(gen) {
       const h2 = h%12+1;
       const set = new Set([ans, half?`${h}じ`:`${h}じはん`, `${h2}じ`, `${h2}じはん`]);
       return { text:'とけいは なんじかな？', ans, choices:shuffle([...set]),
-        hint:`みじかい はりは ${h}。<br>ながい はりが ${half?'6だから「はん」':'12だから ちょうど'}！<br>こたえは <b>${ans}</b>`,
+        hint:`🔴あかい みじかい はりは ${h}の ところ →「${h}じ」<br>🔵あおい ながい はりが ${half?'したの 6 →「はん」':'うえの 12 →「ちょうど」'}！<br>こたえは <b>${ans}</b>`,
         visual:{type:'clock',h,m} };
     }
     case 'clock2': {
@@ -2132,7 +2135,7 @@ function genProblem(gen) {
       [mkClock(h,(m+5)%60||55), mkClock(h,(m+50)%60||5), mkClock(h%12+1,m)].forEach(c => { if(set.size<4) set.add(c); });
       while (set.size<4) set.add(mkClock(randInt(1,12),5*randInt(1,11)));
       return { text:'とけいは なんじなんぷん？', ans, choices:shuffle([...set]),
-        hint:`ながい はりは ${m/5}の ところ！<br>${m/5}×5＝${m}<br>こたえは <b>${ans}</b>`, visual:{type:'clock',h,m} };
+        hint:`🔴あかい はりは ${h}を すぎた →「${h}じ」<br>🔵あおい はりは すうじ ${m/5}の ところ！<br>5とびで かぞえて ${m/5}×5＝${m} →「${m}ぷん」<br>こたえは <b>${ans}</b>`, visual:{type:'clock',h,m} };
     }
     case 'clock3': {
       if (Math.random() < .5) {
@@ -2143,13 +2146,13 @@ function genProblem(gen) {
         [mkClock(h,m), mkClock(h2,(m2+10)%60), mkClock(h2%12+1,m2)].forEach(c => { if(set.size<4) set.add(c); });
         while (set.size<4) set.add(mkClock(randInt(1,12),5*randInt(0,11)));
         return { text:`${mkClock(h,m)}の ${d}ぷんあとは？`, ans, choices:shuffle([...set]),
-          hint:`ながい はりを ${d}ぷんぶん すすめよう！<br>60ぷんで つぎの「じ」に なるよ<br>こたえは <b>${ans}</b>`, visual:{type:'clock',h,m} };
+          hint:`🔵あおい ながい はりを めもり ${d}こぶん すすめよう！<br>ふんが 60に なったら つぎの「じ」！<br>こたえは <b>${ans}</b>`, visual:{type:'clock',h,m} };
       }
       const h = randInt(1,11), m = 5*randInt(4,11);
       const ans = `${m}ぷん`;
       const set = new Set([ans, `${m-5}ふん`, `${m+5===60?55:m+5}ふん`, `${m/5}ふん`]);
       return { text:`${h}じから ${mkClock(h,m)}までは なんぷん？`, ans, choices:shuffle([...set]),
-        hint:`ながい はりが 12から ${m/5}まで すすんだよ！<br>${m/5}×5＝<b>${m}ぷん</b>`, visual:{type:'clock',h,m} };
+        hint:`🔵あおい ながい はりが うえの 12から すうじ ${m/5}まで すすんだよ！<br>5とびで かぞえて ${m/5}×5＝<b>${m}ぷん</b>`, visual:{type:'clock',h,m} };
     }
     case 'length1': {
       const n = randInt(3,9);
@@ -2176,7 +2179,7 @@ function genProblem(gen) {
       const t = randInt(0,2);
       if (t===0) {
         return { text:'1km ＝ ？m', ans:'1000', choices:shuffle(['1000','100','10','10000']),
-          hint:`📏 1km＝<b>1000m</b>！`, visual:null };
+          hint:`📏 「キロ」は 1000この まとまり！<br>1km＝<b>1000m</b>！`, visual:null };
       }
       if (t===1) {
         const a = randInt(1,5), b2 = randInt(1,9);
@@ -2267,7 +2270,7 @@ function genProblem(gen) {
       }
       const a = randInt(12,40), b2 = randInt(2,6), ans = a*b2;
       return { text:`${a}こいりの ふくろが ${b2}ふくろ。ぜんぶで なんこ？`, ans:String(ans), choices:numChoices(ans,[ans+b2,ans-b2,ans+10]),
-        hint:`${a}×${b2}を けいさん！<br>こたえは <b>${ans}</b>`, visual:null };
+        hint:`「${a}こずつが ${b2}ふくろ」は かけざん！<br>${a}×${b2}＝<b>${ans}</b>`, visual:null };
     }
     case 'hissanAdd': {
       let a,b;
@@ -2364,7 +2367,7 @@ function genProblem(gen) {
     case 'div': {
       const b = randInt(2,9), q = randInt(2,9), n = b*q;
       return { text:`${n} ÷ ${b} = ?`, ans:String(q), choices:numChoices(q,[q+1,q-1,b]),
-        hint:`${b}×なに＝${n}？<br>${b}×${q}=${n} だから こたえは <b>${q}</b>`, visual:null };
+        hint:`わりざんは「${b}×なに＝${n}？」を さがす けいさん！<br>九九の ${b}のだんで さがそう。${b}×${q}=${n}！<br>こたえは <b>${q}</b>`, visual:null };
     }
     case 'divRem': {
       const b = randInt(3,9), q = randInt(2,9), r = randInt(1,b-1), n = b*q+r;
@@ -2590,28 +2593,115 @@ function vBase10(h, t, o) {
   return wrap;
 }
 // アナログとけい
-function vClockCanvas(h, m) {
+// みじかい はり＝あか（なんじ）／ながい はり＝あお（なんぷん）。opts で おおきさ・ひかり・めもりを かえられる
+function vClockCanvas(h, m, opts) {
+  const o = opts || {};
   const c = document.createElement('canvas');
-  c.width = 150; c.height = 150;
-  c.style.width = '125px'; c.style.height = '125px';
+  const W = o.big ? 240 : 150;
+  c.width = W; c.height = W;
+  c.style.width = (o.big ? 200 : 125) + 'px'; c.style.height = c.style.width;
   const x = c.getContext('2d');
-  const cx = 75, cy = 75;
-  x.fillStyle = '#fffdf5'; x.strokeStyle = '#4a3218'; x.lineWidth = 7;
-  x.beginPath(); x.arc(cx, cy, 66, 0, Math.PI*2); x.fill(); x.stroke();
-  x.fillStyle = '#4a3218'; x.font = 'bold 17px sans-serif';
+  const cx = W/2, cy = W/2;
+  const R = o.big ? 92 : 62;
+  x.fillStyle = '#fffdf5'; x.strokeStyle = '#4a3218'; x.lineWidth = o.big ? 8 : 7;
+  x.beginPath(); x.arc(cx, cy, R, 0, Math.PI*2); x.fill(); x.stroke();
+  // めもり（60こ）。すうじの ところは ふとく
+  for (let i=0; i<60; i++) {
+    const ang = (i*6-90)*Math.PI/180;
+    const isBig = i % 5 === 0;
+    x.strokeStyle = isBig ? '#4a3218' : '#b8a888';
+    x.lineWidth = isBig ? (o.big ? 4 : 3) : (o.big ? 2 : 1.5);
+    const r1 = R - (isBig ? (o.big ? 12 : 9) : (o.big ? 7 : 5));
+    x.beginPath();
+    x.moveTo(cx+Math.cos(ang)*r1, cy+Math.sin(ang)*r1);
+    x.lineTo(cx+Math.cos(ang)*(R-2), cy+Math.sin(ang)*(R-2));
+    x.stroke();
+  }
+  // とけいの すうじ
+  x.fillStyle = '#4a3218'; x.font = `bold ${o.big ? 24 : 15}px sans-serif`;
   x.textAlign = 'center'; x.textBaseline = 'middle';
+  const numR = R - (o.big ? 28 : 21);
   for (let i=1; i<=12; i++) {
     const ang = (i*30-90)*Math.PI/180;
-    x.fillText(i, cx+Math.cos(ang)*51, cy+Math.sin(ang)*51);
+    x.fillText(i, cx+Math.cos(ang)*numR, cy+Math.sin(ang)*numR);
+  }
+  // ふんの すうじ（あおい 5とびの かず）※big＋minNums の ときだけ
+  if (o.big && o.minNums) {
+    x.fillStyle = '#2b6bd6'; x.font = 'bold 13px sans-serif';
+    for (let i=1; i<=12; i++) {
+      const ang = (i*30-90)*Math.PI/180;
+      x.fillText(i*5, cx+Math.cos(ang)*(R+15), cy+Math.sin(ang)*(R+15));
+    }
   }
   const ma = (m*6-90)*Math.PI/180;
-  x.strokeStyle = '#2e8b3a'; x.lineWidth = 5; x.lineCap = 'round';
-  x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+Math.cos(ma)*46, cy+Math.sin(ma)*46); x.stroke();
   const ha = ((h%12)*30 + m*0.5 - 90)*Math.PI/180;
-  x.strokeStyle = '#4a3218'; x.lineWidth = 8;
-  x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+Math.cos(ha)*31, cy+Math.sin(ha)*31); x.stroke();
-  x.fillStyle = '#c0453c'; x.beginPath(); x.arc(cx,cy,6,0,7); x.fill();
+  const hLen = R*0.48, mLen = R*0.74;
+  // ひかり（いま せつめいしている はりを きいろく ひからせる）
+  const glow = (ang, len, w) => {
+    x.strokeStyle = 'rgba(255,205,60,.6)'; x.lineWidth = w; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+Math.cos(ang)*len, cy+Math.sin(ang)*len); x.stroke();
+  };
+  if (o.hl === 'h' || o.hl === 'both') glow(ha, hLen, o.big ? 22 : 16);
+  if (o.hl === 'm' || o.hl === 'both') glow(ma, mLen, o.big ? 18 : 13);
+  // ながい はり（あお）
+  x.globalAlpha = o.dim === 'm' ? .25 : 1;
+  x.strokeStyle = '#2b6bd6'; x.lineWidth = o.big ? 7 : 5; x.lineCap = 'round';
+  x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+Math.cos(ma)*mLen, cy+Math.sin(ma)*mLen); x.stroke();
+  // みじかい はり（あか）
+  x.globalAlpha = o.dim === 'h' ? .25 : 1;
+  x.strokeStyle = '#d84a3a'; x.lineWidth = o.big ? 11 : 8;
+  x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+Math.cos(ha)*hLen, cy+Math.sin(ha)*hLen); x.stroke();
+  x.globalAlpha = 1;
+  x.fillStyle = '#4a3218'; x.beginPath(); x.arc(cx,cy,o.big?8:6,0,7); x.fill();
   return c;
+}
+// とけいの アニメじゅぎょう（1ステップずつ）
+function buildClockSteps(demo, anim) {
+  demo.innerHTML = '';
+  demo.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;';
+  const holder = document.createElement('div');
+  const cap = document.createElement('div');
+  cap.style.cssText = 'font-size:min(5.5vw,22px);font-weight:bold;color:#4a3218;min-height:1.3em;';
+  demo.appendChild(holder); demo.appendChild(cap);
+  const draw = (h, m, o, capText) => () => {
+    holder.innerHTML = '';
+    holder.appendChild(vClockCanvas(h, m, Object.assign({big:true}, o)));
+    cap.textContent = capText || '';
+  };
+  const L = anim.lesson;
+  if (L === 'clock1') return [
+    { say:'これが とけい！ まわりに、1から 12の すうじが ならんでいるよ。', do:draw(3,0,{}) },
+    { say:'はりは 2ほん あるよ。あかくて みじかい はりと、あおくて ながい はり！', do:draw(3,0,{hl:'both'}) },
+    { say:'あかい みじかい はりは、「なんじ」を おしえてくれるよ。いまは 3を さしているね。', do:draw(3,0,{hl:'h',dim:'m'},'あかい はり → 3') },
+    { say:'あおい ながい はりが、まっすぐ うえの 12の ときは、「ちょうど」！ だから いまは、3じ！', do:draw(3,0,{hl:'m',dim:'h'},'3じ') },
+    { say:'あおい ながい はりが、まっすぐ したの 6まで くると、「はん」！', do:draw(3,30,{hl:'m',dim:'h'},'したの 6 →「はん」') },
+    { say:'あかい はりは、3と 4の あいだに いるね。まえの すうじの 3を つかって、3じはん！', do:draw(3,30,{hl:'h',dim:'m'},'3じはん') },
+    { say:'まとめ！ あかい はりで「なんじ」。あおい はりが うえなら「ちょうど」、したなら「はん」！ 🎉', do:draw(3,30,{}) },
+  ];
+  if (L === 'clock2') return [
+    { say:'あかい みじかい はりは、「じ」だったね。3を すぎた ところだから、3じ！', do:draw(3,25,{hl:'h',dim:'m'},'あかい はり → 3じ') },
+    { say:'あおい ながい はりは、「なんぷん」を おしえてくれるよ！', do:draw(3,25,{hl:'m',dim:'h'}) },
+    { say:'とけいの まわりには、ちいさい めもりが 60こ。ながい はりが めもり 1つ すすむと、1ぷん！', do:draw(3,25,{hl:'m',dim:'h'},'めもり 1こ ＝ 1ぷん') },
+    { say:'すうじ 1つぶんは、めもり 5こ。だから すうじの ところは、あおい かずで 5とびに なるよ！', do:draw(3,25,{minNums:true,hl:'m',dim:'h'},'すうじ 1つぶん ＝ 5ふん') },
+    { say:'5、10、15、20、25！ ながい はりは、5の すうじの ところ。だから、25ふん！', do:draw(3,25,{minNums:true,hl:'m',dim:'h'},'5×5 ＝ 25ふん') },
+    { say:'あわせて、3じ25ふん！ とけいが よめたね！ 🎉', do:draw(3,25,{minNums:true},'3じ25ふん') },
+  ];
+  if (L === 'timeDur') return [
+    { say:'いまは 3じ。ここから 30ぷん たつと、どうなるかな？', do:draw(3,0,{},'3じ') },
+    { say:'あおい ながい はりが、めもりを すすんでいくよ。まず 10ぷん！', do:draw(3,10,{hl:'m',dim:'h'},'3じ10ぷん') },
+    { say:'もう 10ぷんで、20ぷん たった！', do:draw(3,20,{hl:'m',dim:'h'},'3じ20ぷん') },
+    { say:'さらに 10ぷんで、30ぷん たった！ ながい はりは、したの 6まで きたね。', do:draw(3,30,{hl:'m',dim:'h'},'3じ30ぷん') },
+    { say:'あかい みじかい はりも、すこしだけ すすんで、3と 4の あいだに いるよ。', do:draw(3,30,{hl:'h',dim:'m'}) },
+    { say:'こたえは、3じ30ぷん！ はりを すすめると わかるんだね！ 🎉', do:draw(3,30,{},'3じ30ぷん') },
+  ];
+  // clock3: 60ぷんで 1じかん
+  return [
+    { say:'いまは 3じ。あおい ながい はりが、ここから ぐるっと 1しゅうするよ！', do:draw(3,0,{hl:'m',dim:'h'},'3じ') },
+    { say:'はんぶん まわると、30ぷん。3じ30ぷん！', do:draw(3,30,{hl:'m',dim:'h'},'3じ30ぷん') },
+    { say:'ぐるっと 1しゅうで、60ぷん！ あかい みじかい はりは、つぎの すうじの 4に ついたよ。', do:draw(4,0,{hl:'h',dim:'m'},'60ぷんで 1しゅう') },
+    { say:'60ぷん ＝ 1じかん！ だから 3じの 1じかんあとは、4じ！', do:draw(4,0,{},'60ぷん ＝ 1じかん') },
+    { say:'とちゅうの ふんは、あおい 5とびの かずで かぞえると はやいよ！ 🎉', do:draw(4,20,{minNums:true,hl:'m',dim:'h'},'5、10、15、20…') },
+  ];
 }
 // ずけい
 // ぶんすう・しょうすうの ながしかく（n とうぶんして k こに いろ）
@@ -3804,6 +3894,7 @@ function renderTeachAnim(box, anim) {
     teachState.steps = anim.kind === 'cherry' ? buildCherrySteps(demo, anim)
       : anim.kind === 'cherrySub' ? buildCherrySubSteps(demo, anim)
       : anim.kind === 'kasa' ? buildKasaSteps(demo)
+      : anim.kind === 'clock' ? buildClockSteps(demo, anim)
       : buildHissanSteps(demo, anim);
     teachState.stepIdx = 0;
     teachState.sayEl = say;
@@ -4480,7 +4571,7 @@ function handleCorrect() {
       $('overlay').classList.remove('active');
       if (state.adv.n >= 7) finishAdventure();
       else nextAdvQuestion();
-    }, 1300);
+    }, 1700);
     return;
   }
   if (state.test) {
@@ -4492,7 +4583,7 @@ function handleCorrect() {
       $('overlay').classList.remove('active');
       if (state.test.n >= 8) finishTest();
       else nextTestQuestion();
-    }, 1200);
+    }, 1600);
     return;
   }
   state.combo++;
@@ -4506,7 +4597,7 @@ function handleCorrect() {
   p.classList.add('show');
   document.querySelectorAll('.choice').forEach(c => c.style.pointerEvents='none');
   // ほめことばを ゆっくり よめる ながさに（リベンジ・いっぱつせいかいは すこし ながめ）
-  const praiseMs = wasRevenge ? 2200 : (state.firstTryPending ? 1800 : 1500);
+  const praiseMs = wasRevenge ? 2800 : (state.firstTryPending ? 2400 : 2000);
   setTimeout(state.isBossQ ? bossHit : enterBreakMode, praiseMs);
 }
 function handleWrong(btn) {
