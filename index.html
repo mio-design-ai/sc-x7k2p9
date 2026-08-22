@@ -616,9 +616,10 @@
   .mcSlots.trashOn .mcSlot { outline:2px dashed #c0453c; outline-offset:-2px; cursor:pointer; }
   .trashToggle { background:#9aa4ae; font-size:12px; padding:8px 12px; margin-top:8px; }
   .trashToggle.on { background:#b8534a; }
-  #craftMats { display:flex; gap:6px; justify-content:center; margin:10px 0; }
-  .matChip { width:44px; height:44px; border-radius:10px; border:3px solid transparent; background:#f5ecd2; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,.2); }
-  .matChip canvas { width:30px; height:30px; }
+  #craftMats { display:flex; flex-wrap:wrap; gap:5px; justify-content:center; margin:10px 0; }
+  .matChip { width:40px; height:44px; border-radius:10px; border:3px solid transparent; background:#f5ecd2; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,.2); }
+  .matChip canvas { width:26px; height:26px; }
+  .matChip .mcName { font-size:7px; font-weight:bold; color:#8a7a55; line-height:1; }
   .matChip.sel { border-color:#e8873c; background:#fff3c6; }
   .craftRow { display:flex; align-items:center; gap:8px; background:#f5ecd2; border-radius:10px; padding:8px 10px; margin-bottom:8px; text-align:left; }
   .craftRow canvas { width:34px; height:34px; flex-shrink:0; }
@@ -1605,6 +1606,12 @@ const gearPals = Object.assign({}, chunkPals, {
   rainbow:  { o:'#4a2a6e', l:'#ffd9f2', m:'#c86ee8', d:'#8a3ab8', w:'#ffffff' },
   wood:     { o:'#4a3018', l:'#c89858', m:'#8a5c33', d:'#6e4a26', w:'#ffffff' },
   netherite:{ o:'#1a1008', l:'#a88a64', m:'#5c4630', d:'#3a2a1a', w:'#e0c9a8' },
+  coal:     { o:'#0a0a0a', l:'#5a5a5a', m:'#2e2e2e', d:'#161616', w:'#8a8a8a' },
+  lapis:    { o:'#0e2a6e', l:'#7aa8ff', m:'#2a5ce8', d:'#1a3f9e', w:'#c8dcff' },
+  emerald:  { o:'#0d5a24', l:'#7cf5a0', m:'#2ee85f', d:'#199e3e', w:'#d8ffe4' },
+  amethyst: { o:'#4a1a7a', l:'#d3a6ff', m:'#b06bff', d:'#7a3ac0', w:'#f2e2ff' },
+  quartz:   { o:'#8a7f6e', l:'#fffaf0', m:'#f2ece0', d:'#c8bfae', w:'#ffffff' },
+  obsidian: { o:'#0d0718', l:'#5a3d84', m:'#372352', d:'#1f1330', w:'#c8a5ff' },
 });
 const GEM_MAP = [
   '................',
@@ -1727,6 +1734,12 @@ const swordDefs = {
   redstone: { name:'レッドストーンの けん' },
   gold:     { name:'きんの けん' },
   diamond:  { name:'ダイヤの けん' },
+  coal:     { name:'せきたんの けん' },
+  lapis:    { name:'ラピスラズリの けん' },
+  emerald:  { name:'エメラルドの けん' },
+  amethyst: { name:'アメジストの けん' },
+  quartz:   { name:'クォーツの けん' },
+  obsidian: { name:'こくようせきの けん' },
   netherite:{ name:'ネザライトの けん' },
   rainbow:  { name:'にじの けん' },
 };
@@ -1743,6 +1756,12 @@ function drawSword(kind) {
     gold:     ['#f5c53a','#ffe98a'],
     diamond:  ['#4fd8e8','#a8f0f8'],
     netherite:['#5c4630','#a88a64'],
+    coal:     ['#2e2e2e','#5a5a5a'],
+    lapis:    ['#2a5ce8','#7aa8ff'],
+    emerald:  ['#2ee85f','#7cf5a0'],
+    amethyst: ['#b06bff','#d3a6ff'],
+    quartz:   ['#f2ece0','#ffffff'],
+    obsidian: ['#372352','#5a3d84'],
   };
   const px = (i,j,w,h,col) => { x.fillStyle = col; x.fillRect(i,j,w,h); };
   // やいば（ななめ）
@@ -2040,6 +2059,24 @@ function reviewLeft(u) {
   if (!cap) return Infinity;
   return cap - (clearsData()[u.id] || 0);
 }
+// 💎 きしょうかち（レアさ）の せっけい・2026-08-22
+//   min = でてくる いちばん あさい ふかさ／w(d) = そのふかさでの でやすさ（かずが おおきいほど よく でる）
+//   マイクラの じっさいの レアさに あわせた: せきたん＞どう＞てつ＞ラピス・レッドストーン＞きん
+//   ＞クォーツ(ネザー)＞アメジスト＞ダイヤ＞こくようせき＞エメラルド＞ネザライト
+const ORE_RARITY = {
+  coal:      { min:1, w:d => d<=2 ? 26 : d<=4 ? 18 : d<=6 ? 10 : 6 },
+  copper:    { min:1, w:d => d<=2 ? 22 : d<=4 ? 14 : d<=6 ?  7 : 3 },
+  iron:      { min:2, w:d => d<=2 ?  8 : d<=4 ? 16 : d<=6 ? 14 : 10 },
+  lapis:     { min:3, w:d => d<=4 ?  7 : 6 },
+  redstone:  { min:3, w:d => d<=4 ?  6 : 8 },
+  gold:      { min:2, w:d => d<=2 ?  3 : d<=4 ?  5 : d<=6 ?  7 : 8 },
+  quartz:    { min:7, w:() => 14 },                  // ネザーでは よく でる
+  amethyst:  { min:5, w:d => d<=6 ? 4 : 3 },
+  diamond:   { min:4, w:d => d<=4 ? 2 : d<=6 ? 4 : 5 },
+  obsidian:  { min:5, w:d => d<=6 ? 1.6 : 2.4 },
+  emerald:   { min:5, w:d => d<=6 ? 1.2 : 1.6 },     // マイクラでも いちばん レアな 鉱石
+  netherite: { min:7, w:() => 0.8 },                 // さいきょう・さいレア
+};
 function rollDrop() {
   // 🌱 ふくしゅう・そつぎょう済みは どう・てつ ちゅうしん（レアは じぶんの がくねんで！）
   if (dropsEased()) return Math.random() < .7 ? 'copper' : 'iron';
@@ -2049,34 +2086,37 @@ function rollDrop() {
   jackpot += 0.004 * equippedSwordRank();          // ⚔️ そうびした けんが つよいほど レアが でやすい
   if (Math.random() < jackpot) return 'rainbow';
   const d = Math.min(state.depth, 8);
-  const w = {
-    coal:     Math.max(1, 7 - d),
-    copper:   Math.max(1, 8 - d),
-    iron:     3 + Math.min(d, 3),
-    lapis:    d >= 3 ? 2 : 0,
-    redstone: d >= 3 ? 2 : 0,
-    quartz:   d >= 7 ? 4 : 0,
-    gold:     d >= 2 ? d + 1 : 1,
-    amethyst: d >= 5 ? 2 : 0,
-    emerald:  d >= 5 ? 2 : 0,
-    diamond:  d >= 2 ? Math.max(1, (d-2)*2) : 0,
-    netherite:d >= 7 ? 2 : 0,
-  };
-  if (state.rainbowMode) { w.coal = 0; w.copper = 0; w.gold += 3; w.diamond += 4; w.emerald += 2; }
-  w.gold += store.get('ench_sword', 0);
-  if (state.combo >= 3) { w.coal = 0; w.copper = 0; w.gold += 3; }
-  if (state.combo >= 5) { w.iron = Math.max(0, w.iron - 2); w.gold += 2; w.diamond = Math.max(w.diamond + 3, 4); }
+  const w = {};
+  Object.keys(ORE_RARITY).forEach(k => {
+    const r = ORE_RARITY[k];
+    w[k] = (d >= r.min) ? r.w(d) : 0;
+  });
+  // 🌈 にじの どうくつ・コンボ・エンチャントは レアが でやすくなる（ただし じゅんばんは くずさない）
+  const boostRare = (mul) => { ['gold','amethyst','diamond','emerald','obsidian','netherite'].forEach(k => w[k] *= mul); };
+  const cutCommon = (mul) => { ['coal','copper','iron','quartz'].forEach(k => w[k] *= mul); };
+  if (state.rainbowMode) { boostRare(3); cutCommon(.2); }
+  if (state.combo >= 3)  { boostRare(1.6); cutCommon(.5); }
+  if (state.combo >= 5)  { boostRare(1.8); cutCommon(.5); }
+  const ench = store.get('ench_sword', 0);
+  if (ench) boostRare(1 + .25 * ench);
   const keys = Object.keys(w);
   const total = keys.reduce((a,k) => a + w[k], 0);
+  if (total <= 0) return 'iron';
   let r = Math.random() * total;
   for (const k of keys) { r -= w[k]; if (r < 0) return k; }
   return 'iron';
 }
+// 🗝️ たからばこは「レアな ものだけ」。ただし ネザライト・エメラルドは やっぱり レア
 function rollChestDrop() {
   if (dropsEased()) return Math.random() < .5 ? 'iron' : 'copper';
+  const d = state.depth || 1;
   const r = Math.random();
-  if (r < .06) return 'rainbow';
-  if (r < .42) return 'diamond';
+  if (r < .05) return 'rainbow';
+  if (d >= 7 && r < .10) return 'netherite';
+  if (d >= 5 && r < .16) return 'emerald';
+  if (d >= 5 && r < .24) return 'obsidian';
+  if (d >= 5 && r < .34) return 'amethyst';
+  if (r < .60) return 'diamond';
   return 'gold';
 }
 
@@ -4942,12 +4982,15 @@ function blockTypeForDepth() {
     if (d===2) return ['dirt','stone','coal','copper','oakwood','water'];
     return ['stone','stone','dirt','coal','copper','iron','water'];
   }
-  if (d===1) return ['grass','oakwood','birchwood','dirt','water'];
-  if (d===2) return ['dirt','stone','coal','copper','oakwood','water'];
-  if (d<=4) return ['stone','stone','coal','copper','iron','lapis','redstone','water'];
-  if (d<=6) return ['deepslate','deepslate','gold','diamond','emerald','amethyst','redstone','obsidian','magma'];
+  // 🧱 みえる ブロックも きしょうかちに あわせる（レアな こうせきは たまにしか あらわれない）
+  if (d===1) return ['grass','grass','oakwood','birchwood','dirt','dirt','water'];
+  if (d===2) return ['dirt','dirt','stone','stone','coal','coal','copper','oakwood','water'];
+  if (d<=4) return ['stone','stone','stone','stone','coal','coal','copper','copper','iron','lapis','redstone','water'];
+  if (d<=6) return ['deepslate','deepslate','deepslate','deepslate','stone','coal','iron','gold','redstone','lapis',
+                    'amethyst','diamond','obsidian','emerald','magma'];
   // ふかさ7いじょう＝ネザーの そう。さいきょうの ネザライトと クォーツが でる
-  return ['netherrack','netherrack','quartz','netherite','gold','diamond','obsidian','magma'];
+  return ['netherrack','netherrack','netherrack','netherrack','quartz','quartz','gold','iron','diamond',
+          'obsidian','emerald','netherite','magma'];
 }
 function depthBg(d) {
   if (state.rainbowMode) return 'linear-gradient(#5a2a88, #2b1a4e)';
@@ -5599,9 +5642,13 @@ const pieceDefs = {
   sword:  { name:'けん',       cost:2 },
 };
 // 🧱 そうびに つかえる そざい（よわい→つよい の じゅんばん。き と にじダイヤを ついか）
-const GEAR_MATS = ['wood','copper','redstone','iron','gold','diamond','netherite','rainbow'];
+const GEAR_MATS = ['wood','coal','copper','lapis','redstone','iron','quartz','gold','amethyst','emerald','diamond','obsidian','netherite','rainbow'];
+// 🆕 あたらしい そざいは けん・たて・つるはし の 3つだけ つくれる（よろいは もとの そざいだけ）
+const GEM_ONLY_MATS = ['coal','lapis','emerald','amethyst','quartz','obsidian'];
+const piecesForMat = (m) => GEM_ONLY_MATS.includes(m) ? ['sword','pick','shield'] : null;
 // にじダイヤは とても レアなので ひつような かずを すくなくする
-const matCostOf = (piece, mat) => (mat === 'rainbow' || mat === 'netherite')
+const RARE_MATS = ['rainbow','netherite','obsidian','emerald','amethyst'];
+const matCostOf = (piece, mat) => RARE_MATS.includes(mat)
   ? Math.max(1, Math.ceil(pieceDefs[piece].cost * .4))
   : pieceDefs[piece].cost;
 const matNameOf = m => m === 'wood' ? 'き' : (ores[m] ? ores[m].name : m);
@@ -5656,7 +5703,7 @@ function bestMat(piece) {
   return null;
 }
 // 🛡️ たての ちから: そうびしている たての そざいで ボスの たいりょくが へる
-const shieldCut = { wood:1, copper:1, redstone:1, iron:2, gold:2, diamond:3, netherite:3, rainbow:3 };
+const shieldCut = { wood:1, coal:1, copper:1, lapis:1, redstone:1, iron:2, quartz:2, gold:2, amethyst:2, emerald:2, diamond:3, obsidian:3, netherite:3, rainbow:3 };
 function equippedShieldCut() {
   const m = chosenMat('shield');
   return m ? (shieldCut[m] || 0) : 0;
@@ -5693,7 +5740,8 @@ function craftRecipes() {
   const mName = matNameOf(m);
   const cut = shieldCut[m] || 1;
   const need = p => [[m, matCostOf(p, m)]];
-  return [
+  const only = piecesForMat(m);
+  const all = [
     { key:'sword_'+m, name:`${mName}の けん`, icon:()=>drawSword(m),
       needs:[[m,m==='rainbow'?1:2],['stick',1]],
       give:()=>{ gainSword(m); showSwordBanner(m); } },
@@ -5716,10 +5764,12 @@ function craftRecipes() {
       needs:need('boots'),
       give:()=>{ giveGear('boots',m); } },
   ];
+  if (!only) return all;
+  return all.filter(r => only.includes(r.key.split('_')[0]));
 }
 // ⛏️ つるはしの ランクで こわすのに ひつような タップかいすうが かわる
 // なし=4かい／どう・レッドストーン=3かい／てつ・きん=2かい／ダイヤ=1かい
-const pickTaps = { wood:3, copper:3, redstone:3, iron:2, gold:2, diamond:1, netherite:1, rainbow:1 };
+const pickTaps = { wood:3, coal:3, copper:3, lapis:3, redstone:3, iron:2, quartz:2, gold:2, amethyst:2, emerald:2, diamond:1, obsidian:1, netherite:1, rainbow:1 };
 function equippedPick() {
   const gear = store.get('gear', {});
   const sel = store.get('equipSel', {}).pick;
@@ -5774,7 +5824,7 @@ function tapsForBlock(blockEl) {
 // ダイヤ・ネザライト・にじダイヤの つるはしなら こくようせきを ほれる
 function canBreakObsidian() {
   const pm = equippedPick();
-  return pm === 'diamond' || pm === 'netherite' || pm === 'rainbow';
+  return pm === 'diamond' || pm === 'obsidian' || pm === 'netherite' || pm === 'rainbow';
 }
 function giveGear(piece, mat) {
   const gear = store.get('gear', {});
@@ -5986,6 +6036,10 @@ function renderCraft() {
     chip.className = 'matChip' + (craftMat === m ? ' sel' : '');
     chip.title = matNameOf(m);
     chip.appendChild(drawItem(m === 'wood' ? 'oakwood' : m));
+    const nm = document.createElement('span');
+    nm.className = 'mcName';
+    nm.textContent = matNameOf(m).slice(0, 5);
+    chip.appendChild(nm);
     chip.addEventListener('click', () => { craftMat = m; sfx.tap(); renderCraft(); });
     mats.appendChild(chip);
   });
