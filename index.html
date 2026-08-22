@@ -105,7 +105,7 @@
   .tradeArrow { font-size:20px; }
   .tradeGo { background:#c9822a; font-size:min(3.8vw,14px); padding:9px 12px; flex-shrink:0; }
   .tradeGo:disabled { background:#b8b8b8; box-shadow:0 3px 0 rgba(0,0,0,.2); transform:none; }
-  #farmPlots { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:6px; }
+  #farmPlots { display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin-bottom:6px; }
   .plot {
     aspect-ratio:1; border-radius:8px; cursor:pointer; position:relative;
     background:linear-gradient(#9b6b3f, #7a4f2a); border:3px solid #5a3a1c;
@@ -233,6 +233,14 @@
   .forestCell .fTree { font-size:22px; }
   .forestCell .fIcon { font-size:14px; }
   .forestCell .fCnt { font-size:10px; font-weight:bold; color:#3f6d2e; min-height:12px; }
+  .dexTitle { font-size:min(3.6vw,14px); font-weight:bold; color:#3f6d2e; margin:6px 0 4px; }
+  .dexGrid { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; margin-bottom:8px; }
+  .dexCell { background:#eee8d8; border:3px solid #cfc5aa; border-radius:9px; padding:5px 2px;
+    display:flex; flex-direction:column; align-items:center; gap:2px; filter:grayscale(1) brightness(.75); }
+  .dexCell.got { background:#fff3c6; border-color:#e8b02a; filter:none; }
+  .dexCell span { font-size:9px; font-weight:bold; color:#8a7a55; line-height:1.15; text-align:center; }
+  .dexCell.got span { color:#8a5f10; }
+  .orderDone { opacity:.55; }
   #trophyClose { background:#7f8c9b; margin-top:8px; padding:10px 24px; font-size:15px; flex-shrink:0; align-self:center; }
   .nodeName { font-size:11px; font-weight:bold; color:#fff; text-shadow:1px 1px 0 rgba(0,0,0,.7); line-height:1.25; }
   .mapAvatar { position:absolute; width:44px; pointer-events:none; animation:bob 1.2s ease-in-out infinite; z-index:3; }
@@ -333,6 +341,18 @@
   }
   #mineWrap { position:relative; flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:12px; }
   #stageMsg { color:#fff; font-weight:bold; font-size:min(4.6vw,18px); text-shadow:2px 2px 0 rgba(0,0,0,.5); text-align:center; }
+  /* 🎯 いま めざしている もの（これが「なんのために とくのか」を いつも みせる） */
+  #goalBar { display:none; align-items:center; gap:7px; background:rgba(255,255,255,.9); border:3px solid #e8b02a;
+    border-radius:12px; padding:4px 10px; margin-bottom:4px; box-shadow:0 3px 0 rgba(0,0,0,.3); max-width:92vw; }
+  #goalBar.show { display:flex; }
+  #goalBar canvas { width:26px; height:26px; image-rendering:pixelated; flex-shrink:0; }
+  #goalBar .gTx { font-size:min(3.4vw,13px); font-weight:bold; color:#5a4527; line-height:1.35; text-align:left; }
+  #goalBar .gNeed { color:#c9821a; }
+  #goalBar.done { border-color:#57a64a; animation:gDone 1s ease-in-out infinite; }
+  @keyframes gDone { 50% { box-shadow:0 3px 0 rgba(0,0,0,.3), 0 0 14px rgba(120,220,120,.9); } }
+  .goalPickBtn { background:#e8b02a; font-size:min(3.2vw,12px); padding:6px 10px; margin-left:auto; flex-shrink:0; }
+  .craftGoal { background:#e8b02a; font-size:min(2.9vw,11px); padding:7px 8px; flex-shrink:0; margin-right:4px; }
+  .craftGoal.sel { background:#57a64a; }
   #petCheer { color:#fff; font-weight:bold; font-size:min(4vw,15px); text-shadow:2px 2px 0 rgba(0,0,0,.45); min-height:1.3em; }
   #grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; width:min(92vw, 54vh, 420px); }
   #grid.boomShake { animation:boomShake .45s ease; }
@@ -767,6 +787,7 @@
     </div>
   </div>
   <div id="mineWrap">
+    <div id="goalBar"></div>
     <div id="stageMsg">ブロックを タップして もんだいに こたえよう！</div>
     <div id="petCheer"></div>
     <div id="grid"></div>
@@ -859,6 +880,9 @@
   <div id="tradeCard">
     <h2>🦙 ラマの とりひきじょ</h2>
     <p id="tradeTalk">いらっしゃい！ なにと なにを こうかんする？</p>
+    <div class="craftLbl">📜 きょうの ちゅうもん（たっせいすると おれい がもらえる！）</div>
+    <div id="orderList"></div>
+    <div class="craftLbl">🔁 いつでも こうかん</div>
     <div id="tradeList"></div>
     <button class="btn" id="tradeClose">とじる</button>
   </div>
@@ -886,6 +910,9 @@
       <p class="forestTitle">🌳 じぶんの もり</p>
       <p class="forestLegend">クリアするほど そだつよ！<br>1かい🌱 → 3かい🌿 → 5かい🌸 → 10かい🍎 → 20かい👑</p>
       <div id="trophyForest"></div>
+      <p class="forestTitle">📖 ずかん</p>
+      <p class="forestLegend">みつけた ものが いろつきに なるよ！ ぜんぶ あつめよう</p>
+      <div id="dexBox"></div>
     </div>
     <button class="btn" id="trophyClose">とじる</button>
   </div>
@@ -1047,6 +1074,8 @@ function ctx() {
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
+// 🔉 ぜんたいの おとの おおきさ（2026-08-22: みみに やさしく はんぶんに）
+const VOL = 0.5;
 function beepRaw(freq, dur, type, vol, when) {
   try {
     const c = ctx();
@@ -1055,7 +1084,7 @@ function beepRaw(freq, dur, type, vol, when) {
     const g = c.createGain();
     o.type = type || 'square';
     o.frequency.value = freq;
-    g.gain.setValueAtTime(vol || 0.12, t);
+    g.gain.setValueAtTime((vol || 0.12) * VOL, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
     o.connect(g).connect(c.destination);
     o.start(t); o.stop(t + dur + 0.02);
@@ -1085,7 +1114,7 @@ const sfx = {
       o.type = 'sawtooth';
       o.frequency.setValueAtTime(170, t);
       o.frequency.exponentialRampToValueAtTime(32, t + .5);
-      g.gain.setValueAtTime(.3, t);
+      g.gain.setValueAtTime(.3 * VOL, t);
       g.gain.exponentialRampToValueAtTime(.001, t + .55);
       o.connect(g).connect(c.destination);
       o.start(t); o.stop(t + .6);
@@ -1100,7 +1129,7 @@ let bgmBusNode = null;
 function bgmBus() {
   const c = ctx();
   if (bgmBusNode) return bgmBusNode;
-  const inG = c.createGain(); inG.gain.value = 1;
+  const inG = c.createGain(); inG.gain.value = VOL;
   const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400; lp.Q.value = .4;
   inG.connect(lp); lp.connect(c.destination);
   // やまびこ風の やわらかい残響（フィードバックディレイ）
@@ -1247,7 +1276,7 @@ function startBgm(track) {
       }
       bgmAudio._track = bgmTrack;
       if (bgmAudio.getAttribute('src') !== f.src) bgmAudio.src = f.src;
-      bgmAudio.volume = f.vol;
+      bgmAudio.volume = f.vol * VOL;
       if (state.music) {
         const p = bgmAudio.play();
         if (p && p.catch) p.catch(() => {});   // 自動再生ブロック時は つぎのタップで鳴る
@@ -1334,6 +1363,8 @@ const SHADES = {
   tntYellow: ['#e8c22a','#f5d13a','#c8a51f','#f8dd5a'],
   water:     ['#4aa8e8','#3a90d8','#5ab8f2','#2b78c2'],
   magma:     ['#e85b2a','#c93a10','#ff7a3a','#a82a08'],
+  obsidian:  ['#2a1b40','#1f1330','#372352','#160d24'],   // こくようせき
+  netherrack:['#6e2b2b','#7d3434','#5c2222','#8a3d3d'],   // ネザーの いわ（こだいの ざんがい の ベース）
 };
 function paintCluster(x, S, shades, x0, y0, w, h) {
   for (let j=0; j<h; j+=2) for (let i=0; i<w; i+=2) {
@@ -1431,12 +1462,27 @@ function makeTexture(type, seed) {
     bevel(x);
     return c;
   }
+  if (type === 'obsidian') {
+    // 🟪 こくようせき: つるつるの むらさきぐろ。ダイヤの つるはしでしか こわせない
+    paintCluster(x, S, SHADES.obsidian, 0, 0, 16, 16);
+    x.fillStyle = 'rgba(190,150,255,.35)';
+    x.fillRect(2,2,3,1); x.fillRect(10,5,3,1); x.fillRect(5,9,4,1); x.fillRect(11,12,3,1);
+    x.fillStyle = 'rgba(230,210,255,.5)'; x.fillRect(2,2,1,1); x.fillRect(11,12,1,1);
+    bevel(x);
+    return c;
+  }
   const oreDef = {
     copper:   { base:'stone',     col:'#e8874a', dark:'#8a4a20' },
     iron:     { base:'stone',     col:'#e0b898', dark:'#8a6a50' },
     redstone: { base:'stone',     col:'#ff4a3a', dark:'#8a1a10' },
     gold:     { base:'deepslate', col:'#fce14a', dark:'#8a6b10' },
     diamond:  { base:'deepslate', col:'#55eadd', dark:'#1a7a72' },
+    coal:     { base:'stone',     col:'#2e2e2e', dark:'#111111' },
+    lapis:    { base:'stone',     col:'#2a5ce8', dark:'#12307a' },
+    emerald:  { base:'deepslate', col:'#2ee85f', dark:'#128a34' },
+    amethyst: { base:'deepslate', col:'#b06bff', dark:'#5f2a9e' },
+    quartz:   { base:'netherrack',col:'#f2ece0', dark:'#b0a898' },
+    netherite:{ base:'netherrack',col:'#8a6b4a', dark:'#3a2a1a' },
   };
   const baseType = oreDef[type] ? oreDef[type].base : type;
   paintCluster(x, S, SHADES[baseType] || SHADES.stone, 0, 0, 16, 16);
@@ -1558,6 +1604,7 @@ const gearPals = Object.assign({}, chunkPals, {
   diamond:  { o:'#17635c', l:'#a8f0f8', m:'#4fd8e8', d:'#2ba89e', w:'#dffffb' },
   rainbow:  { o:'#4a2a6e', l:'#ffd9f2', m:'#c86ee8', d:'#8a3ab8', w:'#ffffff' },
   wood:     { o:'#4a3018', l:'#c89858', m:'#8a5c33', d:'#6e4a26', w:'#ffffff' },
+  netherite:{ o:'#1a1008', l:'#a88a64', m:'#5c4630', d:'#3a2a1a', w:'#e0c9a8' },
 });
 const GEM_MAP = [
   '................',
@@ -1622,6 +1669,26 @@ function drawItem(kind) {
     pixelMap(x, GEM_MAP, { o:'#17635c', l:'#63e8dd', n:'#2ba89e', w:'#dffffb' });
     return c;
   }
+  // 🆕 あたらしい おたから（ほうせき型）
+  const gemPals = {
+    coal:     { o:'#101010', l:'#4a4a4a', n:'#262626', w:'#8a8a8a' },
+    lapis:    { o:'#0e2a6e', l:'#5a8cff', n:'#2a5ce8', w:'#c8dcff' },
+    emerald:  { o:'#0d5a24', l:'#5cf58a', n:'#22b04a', w:'#d8ffe4' },
+    amethyst: { o:'#4a1a7a', l:'#d3a6ff', n:'#a05ce8', w:'#f2e2ff' },
+    quartz:   { o:'#8a7f6e', l:'#fffaf0', n:'#ddd3c2', w:'#ffffff' },
+    netherite:{ o:'#1a1008', l:'#a88a64', n:'#5c4630', w:'#e0c9a8' },
+  };
+  if (gemPals[kind]) { pixelMap(x, GEM_MAP, gemPals[kind]); return c; }
+  if (kind === 'obsidian') {
+    // 🟪 こくようせき: しかくい かたまり
+    x.fillStyle = '#1f1330'; x.fillRect(2,3,12,10);
+    x.fillStyle = '#372352'; x.fillRect(3,4,10,8);
+    x.fillStyle = '#2a1b40'; x.fillRect(3,8,10,4);
+    x.fillStyle = 'rgba(200,165,255,.55)';
+    x.fillRect(4,5,3,1); x.fillRect(9,6,3,1); x.fillRect(5,10,4,1);
+    x.fillStyle = '#e6d2ff'; x.fillRect(4,5,1,1);
+    return c;
+  }
   pixelMap(x, GEM_MAP, (ch, i, j) => {
     if (ch === 'o') return '#4a2a6e';
     if (ch === 'w') return '#ffffff';
@@ -1637,11 +1704,18 @@ function drawItem(kind) {
 const ores = {
   oakwood:  { name:'オークの き',     r:0, label:'' },
   birchwood:{ name:'しらかばの き',   r:0, label:'' },
+  coal:     { name:'せきたん',       r:0, label:'' },
   copper:   { name:'どう',           r:0, label:'' },
   iron:     { name:'てつ',           r:1, label:'' },
+  lapis:    { name:'ラピスラズリ',    r:1, label:'' },
   redstone: { name:'レッドストーン',  r:2, label:'🔴 レア！ 🔴' },
+  quartz:   { name:'クォーツ',       r:2, label:'⬜ レア！ ⬜' },
   gold:     { name:'きん',           r:2, label:'✨ レア！ ✨' },
+  amethyst: { name:'アメジスト',      r:3, label:'💜 ちょうレア！！ 💜' },
+  emerald:  { name:'エメラルド',      r:3, label:'💚 ちょうレア！！ 💚' },
   diamond:  { name:'ダイヤ',         r:3, label:'💎 ちょうレア！！ 💎' },
+  obsidian: { name:'こくようせき',    r:3, label:'🟪 かたい おたから！！ 🟪' },
+  netherite:{ name:'ネザライト',      r:4, label:'🔥 さいきょうの おたから！！！ 🔥' },
   rainbow:  { name:'にじダイヤ',     r:4, label:'🌈 でんせつの おたから！！！ 🌈' },
 };
 const TIER = ['copper','iron','redstone','gold','diamond'];
@@ -1653,6 +1727,7 @@ const swordDefs = {
   redstone: { name:'レッドストーンの けん' },
   gold:     { name:'きんの けん' },
   diamond:  { name:'ダイヤの けん' },
+  netherite:{ name:'ネザライトの けん' },
   rainbow:  { name:'にじの けん' },
 };
 function drawSword(kind) {
@@ -1667,6 +1742,7 @@ function drawSword(kind) {
     redstone: ['#e84a3a','#ff8a7a'],
     gold:     ['#f5c53a','#ffe98a'],
     diamond:  ['#4fd8e8','#a8f0f8'],
+    netherite:['#5c4630','#a88a64'],
   };
   const px = (i,j,w,h,col) => { x.fillStyle = col; x.fillRect(i,j,w,h); };
   // やいば（ななめ）
@@ -1687,23 +1763,201 @@ function drawSword(kind) {
   px(1, 13, 2, 2, '#4a3218');
   return c;
 }
+// ---------- 🐾 いきもの（マイクラの せかいは ぜんぶ しかく！ ドット絵で えがく） ----------
+// かたちの もとになる ずけい。o=ふちどり B=からだ D=こい s=あかるい
+const QUAD_MAP = [
+  '................',
+  '................',
+  '................',
+  '..oo.......ooo..',
+  '.oBBo.....oBBBo.',
+  '.oBBoooooooBBBo.',
+  'oBBBBBBBBBBBBBBo',
+  'oBsBBBBBBBBBBBBo',
+  'oBBBBBBBBBBBBBBo',
+  'oBBBBBBBBBBBBBBo',
+  '.oBBBBBBBBBBBBo.',
+  '..oBBoooooBBBo..',
+  '..oBBo...oBBBo..',
+  '..oDDo...oDDDo..',
+  '..oooo...ooooo..',
+  '................',
+];
+const BIRD_MAP = [
+  '................',
+  '................',
+  '.....oooo.......',
+  '....oBBBBo......',
+  '....oBsBBo......',
+  '...oBBBBBBo.....',
+  '..oBBBBBBBBo....',
+  '..oBBBBBBBBo....',
+  '..oBBBBBBBBo....',
+  '..oBBBBBBBBo....',
+  '...oBBBBBBo.....',
+  '....oooooo......',
+  '.....oo.oo......',
+  '....oDDoDDo.....',
+  '.....oo.oo......',
+  '................',
+];
+const SHELL_MAP = [
+  '................',
+  '................',
+  '................',
+  '.....oooooo.....',
+  '....oDDDDDDo....',
+  '...oDBBBBBBDo...',
+  '..oDBBBBBBBBDo..',
+  '.oDBBBBBBBBBBDo.',
+  'ooDDBBBBBBBBDDoo',
+  'oso.oooooooo.oso',
+  '.oo..o....o..oo.',
+  '.....oDDDDo.....',
+  '.....oooooo.....',
+  '................',
+  '................',
+  '................',
+];
+const DRAGON_MAP = [
+  '................',
+  '.........ooooo..',
+  '........oDDDDDo.',
+  '.......oDDDDDDo.',
+  '..ooooooDDDDDoo.',
+  '.oBBBBBBBoooooo.',
+  'oBBBBBBBBBBBBBo.',
+  'oBsBBBBBBBBBBBoo',
+  'oBBBBBBBBBBBBBBo',
+  '.oBBBBBBBBBBBoo.',
+  '..oBBo..oBBBo...',
+  '..oBBo..oBBBo...',
+  '..oDDo..oDDDo...',
+  '..oooo..ooooo...',
+  '................',
+  '................',
+];
+// いきもの ずかん（すべて しかくい ドット絵）
+const creatureDefs = {
+  // どうぶつ（ぼうけんで たすける）
+  pig:     { name:'ぶた',       map:QUAD_MAP,   pal:{ o:'#7a3a4a', B:'#f0a0b4', D:'#d07a90', s:'#ffd0dc' }, ear:'floppy', nose:'#c86a80' },
+  chick:   { name:'ひよこ',     map:BIRD_MAP,   pal:{ o:'#a8791a', B:'#ffe14a', D:'#e8a01a', s:'#fff3a0' }, beak:'#e8871a' },
+  sheep:   { name:'ひつじ',     map:QUAD_MAP,   pal:{ o:'#8a8a8a', B:'#f2f2f2', D:'#d0d0d0', s:'#ffffff' }, ear:'small', wool:true, face:'#e0c0a0' },
+  // ペット（たまごから うまれる）
+  dog:     { name:'いぬ',       map:QUAD_MAP,   pal:{ o:'#5a3a1a', B:'#c89858', D:'#9a7038', s:'#e8c088' }, ear:'floppy', nose:'#3a2a1a', tail:'up' },
+  cat:     { name:'ねこ',       map:QUAD_MAP,   pal:{ o:'#3a3a44', B:'#8a8a96', D:'#6a6a76', s:'#c0c0cc' }, ear:'pointy', nose:'#f0a0b4', tail:'up' },
+  rabbit:  { name:'うさぎ',     map:QUAD_MAP,   pal:{ o:'#8a7a6a', B:'#f2ece0', D:'#d0c8b8', s:'#ffffff' }, ear:'long', nose:'#f0a0b4', tail:'puff' },
+  fox:     { name:'きつね',     map:QUAD_MAP,   pal:{ o:'#8a3a10', B:'#e8873c', D:'#c05a18', s:'#ffb878' }, ear:'pointy', nose:'#2a1a10', tail:'big' },
+  turtle:  { name:'かめ',       map:SHELL_MAP,  pal:{ o:'#1a4a24', B:'#4aa85a', D:'#2e7a3a', s:'#8ad89a' } },
+  owl:     { name:'ふくろう',   map:BIRD_MAP,   pal:{ o:'#4a3418', B:'#b08a50', D:'#8a6838', s:'#e0c090' }, beak:'#e8b01a', bigEyes:true },
+  unicorn: { name:'ユニコーン', map:QUAD_MAP,   pal:{ o:'#8a6ab0', B:'#f5e8ff', D:'#d8c0f0', s:'#ffffff' }, ear:'pointy', horn:true, tail:'rainbow' },
+  dragon:  { name:'ドラゴン',   map:DRAGON_MAP, pal:{ o:'#2a5a24', B:'#5ac04a', D:'#2e8a34', s:'#a0e890' }, horn:true, wing:true },
+};
+// stage: 0=あかちゃん 1=こども 2=おとな 3=しんかした すがた
+function drawCreature(kind, stage, size) {
+  const d = creatureDefs[kind];
+  const px = size || 16;
+  const c = document.createElement('canvas');
+  c.width = px; c.height = px; c.className = 'pix';
+  if (!d) return c;
+  const t = document.createElement('canvas');
+  t.width = 16; t.height = 16;
+  const x = t.getContext('2d');
+  const P = (i,j,w,h,col) => { x.fillStyle = col; x.fillRect(i,j,w,h); };
+  const pal = d.pal;
+  pixelMap(x, d.map, pal);
+  // みみ・つの・しっぽ など（ぜんぶ しかく）
+  if (d.ear === 'long')   { P(2,0,2,4,pal.D); P(5,0,2,4,pal.D); P(2,0,2,1,pal.o); P(5,0,2,1,pal.o); }
+  if (d.ear === 'pointy') { P(1,2,2,2,pal.D); P(5,2,2,2,pal.D); }
+  if (d.ear === 'floppy') { P(1,4,2,4,pal.D); P(1,7,2,1,pal.o); }
+  if (d.ear === 'small')  { P(1,4,2,2,pal.D); }
+  if (d.wool) { for (let i=3;i<15;i+=3) { P(i,4,2,2,pal.s); P(i+1,8,2,2,pal.s); } P(1,6,5,5,d.face); }
+  if (d.horn && !d.wing) { P(4,0,1,4,'#ffe74a'); P(4,0,1,1,'#fff8b0'); }
+  if (d.horn && d.wing)  { P(2,4,1,2,'#ffe74a'); P(4,4,1,2,'#ffe74a'); P(2,4,1,1,'#fff8b0'); }   // ドラゴンの つの2ほん
+  if (d.wing) { P(10,2,2,2,pal.s); P(9,3,2,1,pal.s); }   // つばさの あかるい ぶぶん
+  if (d.tail === 'up')     { P(14,3,2,4,pal.D); P(14,3,2,1,pal.o); }
+  if (d.tail === 'big')    { P(13,4,3,6,pal.D); P(13,8,3,2,pal.s); }
+  if (d.tail === 'puff')   { P(14,7,2,3,pal.s); }
+  if (d.tail === 'rainbow'){ ['#c0392b','#d8b024','#37a24d','#1d7ed6'].forEach((col,i)=>P(14,3+i,2,1,col)); }
+  // め・はな・くちばし
+  if (d.map === BIRD_MAP) {
+    P(5,5,1,1,'#1a1a1a'); P(8,5,1,1,'#1a1a1a');
+    if (d.bigEyes) { P(4,4,3,3,'#ffffff'); P(8,4,3,3,'#ffffff'); P(5,5,1,1,'#1a1a1a'); P(9,5,1,1,'#1a1a1a'); }
+    if (d.beak) { P(6,7,3,2,d.beak); P(6,7,3,1,'#ffffff22'); }
+  } else if (d.map === SHELL_MAP) {
+    P(1,9,1,1,'#1a1a1a');
+  } else {
+    P(2,7,1,1,'#1a1a1a');
+    if (d.nose) P(0,8,2,2,d.nose);
+    if (kind === 'pig') { P(0,7,2,3,'#e08a9c'); P(0,8,1,1,'#a85a68'); }
+  }
+  // ⭐しんかした すがたは ひかる かざり
+  if (stage >= 3) {
+    P(7,0,2,1,'#ffe74a'); P(6,1,1,1,'#ffe74a'); P(9,1,1,1,'#ffe74a');
+    P(0,1,1,1,'#fff8b0'); P(15,2,1,1,'#fff8b0');
+  }
+  // おおきさ（あかちゃんは ちいさい）
+  const scale = [0.62, 0.8, 1, 1][Math.max(0, Math.min(3, stage||0))];
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  const w = Math.round(16*scale), off = Math.round((16-w)/2);
+  g.clearRect(0,0,px,px);
+  g.drawImage(t, 0, 0, 16, 16, off*(px/16), (16-w)*(px/16), w*(px/16), w*(px/16));
+  return c;
+}
+function creatureEl(kind, stage, cssSize) {
+  const cv = drawCreature(kind, stage, 16);
+  cv.style.width = (cssSize||28) + 'px';
+  cv.style.height = (cssSize||28) + 'px';
+  cv.style.imageRendering = 'pixelated';
+  return cv;
+}
 const animalDefs = {
-  pig:   { emoji:'🐷', name:'ぶた' },
-  chick: { emoji:'🐤', name:'ひよこ' },
-  sheep: { emoji:'🐑', name:'ひつじ' },
+  pig:   { name:'ぶた' },
+  chick: { name:'ひよこ' },
+  sheep: { name:'ひつじ' },
 };
 
 // ---------- ペットと たまご ----------
 const petDefs = {
-  dog:     { emoji:'🐶', name:'いぬ',        r:0 },
-  cat:     { emoji:'🐱', name:'ねこ',        r:0 },
-  rabbit:  { emoji:'🐰', name:'うさぎ',      r:0 },
-  fox:     { emoji:'🦊', name:'きつね',      r:1 },
-  turtle:  { emoji:'🐢', name:'かめ',        r:1 },
-  owl:     { emoji:'🦉', name:'ふくろう',    r:1 },
-  unicorn: { emoji:'🦄', name:'ユニコーン',  r:2 },
-  dragon:  { emoji:'🐉', name:'ドラゴン',    r:2 },
+  dog:     { name:'いぬ',        r:0 },
+  cat:     { name:'ねこ',        r:0 },
+  rabbit:  { name:'うさぎ',      r:0 },
+  fox:     { name:'きつね',      r:1 },
+  turtle:  { name:'かめ',        r:1 },
+  owl:     { name:'ふくろう',    r:1 },
+  unicorn: { name:'ユニコーン',  r:2 },
+  dragon:  { name:'ドラゴン',    r:2 },
 };
+// 🍎 ペットの せいちょう: やさいを あげた かずで おおきくなる
+const PET_STAGES = [
+  { need:0,  label:'あかちゃん' },
+  { need:5,  label:'こども' },
+  { need:12, label:'おとな' },
+  { need:25, label:'しんかした すがた' },
+];
+function petFed(kind) { return (store.get('petFed', {})[kind] || 0); }
+function petStage(kind) {
+  const n = petFed(kind);
+  let st = 0;
+  PET_STAGES.forEach((s,i) => { if (n >= s.need) st = i; });
+  return st;
+}
+function petStageLabel(kind) { return PET_STAGES[petStage(kind)].label; }
+// やさいを あげる → もどりち: せいちょうしたら あたらしい stage、しなければ null
+function feedPet(kind) {
+  const fed = store.get('petFed', {});
+  const before = petStage(kind);
+  fed[kind] = (fed[kind] || 0) + 1;
+  store.set('petFed', fed);
+  const after = petStage(kind);
+  return after > before ? after : null;
+}
+function petNextNeed(kind) {
+  const st = petStage(kind);
+  if (st >= PET_STAGES.length - 1) return null;
+  return PET_STAGES[st+1].need - petFed(kind);
+}
 const EGG_NEED = 8;
 function renderEggBadge() {
   const b = $('eggBadge');
@@ -1750,12 +2004,14 @@ function hatchEgg() {
   if (!store.get('activePet', null)) store.set('activePet', kind);
   sfx.get4();
   confettiBurst(55);
-  setTimeout(() => showGetEmoji(petDefs[kind].emoji, `${petDefs[kind].name}が うまれた！`, '🐣 たまごが かえった！！'), 800);
+  setTimeout(() => showGetPix(drawCreature(kind, 0, 16), `${petDefs[kind].name}の あかちゃんが うまれた！`, '🥚 たまごが かえった！！'), 800);
   updatePetBuddy();
 }
 function updatePetBuddy() {
   const k = store.get('activePet', null);
-  $('petBuddy').textContent = k ? petDefs[k].emoji : '';
+  const pb = $('petBuddy');
+  pb.innerHTML = '';
+  if (k) pb.appendChild(creatureEl(k, petStage(k), 30));
 }
 
 // ---------- 🎓 学年連動ごほうび・そつぎょう制（2026-08-19） ----------
@@ -1790,22 +2046,30 @@ function rollDrop() {
   let jackpot = state.depth >= 2 ? (0.03 + (state.combo >= 7 ? 0.05 : 0)) : 0;
   if (state.rainbowMode) jackpot += 0.12;
   jackpot += 0.02 * store.get('ench_sword', 0);   // ✨けんの エンチャント
+  jackpot += 0.004 * equippedSwordRank();          // ⚔️ そうびした けんが つよいほど レアが でやすい
   if (Math.random() < jackpot) return 'rainbow';
-  const d = Math.min(state.depth, 6);
+  const d = Math.min(state.depth, 8);
   const w = {
+    coal:     Math.max(1, 7 - d),
     copper:   Math.max(1, 8 - d),
     iron:     3 + Math.min(d, 3),
+    lapis:    d >= 3 ? 2 : 0,
     redstone: d >= 3 ? 2 : 0,
+    quartz:   d >= 7 ? 4 : 0,
     gold:     d >= 2 ? d + 1 : 1,
+    amethyst: d >= 5 ? 2 : 0,
+    emerald:  d >= 5 ? 2 : 0,
     diamond:  d >= 2 ? Math.max(1, (d-2)*2) : 0,
+    netherite:d >= 7 ? 2 : 0,
   };
-  if (state.rainbowMode) { w.copper = 0; w.gold += 3; w.diamond += 4; }
+  if (state.rainbowMode) { w.coal = 0; w.copper = 0; w.gold += 3; w.diamond += 4; w.emerald += 2; }
   w.gold += store.get('ench_sword', 0);
-  if (state.combo >= 3) { w.copper = 0; w.gold += 3; }
+  if (state.combo >= 3) { w.coal = 0; w.copper = 0; w.gold += 3; }
   if (state.combo >= 5) { w.iron = Math.max(0, w.iron - 2); w.gold += 2; w.diamond = Math.max(w.diamond + 3, 4); }
-  const total = w.copper + w.iron + w.redstone + w.gold + w.diamond;
+  const keys = Object.keys(w);
+  const total = keys.reduce((a,k) => a + w[k], 0);
   let r = Math.random() * total;
-  for (const k of ['copper','iron','redstone','gold','diamond']) { r -= w[k]; if (r < 0) return k; }
+  for (const k of keys) { r -= w[k]; if (r < 0) return k; }
   return 'iron';
 }
 function rollChestDrop() {
@@ -3373,13 +3637,76 @@ const GOLEM_MAP = [
   '.....ooooo......',
   '................',
 ];
+// 👑 ボスの かたち（ぜんぶ しかくい ドット絵）
+const SLIME_MAP = [
+  '................',
+  '................',
+  '....oooooooo....',
+  '...oGGGGGGGGo...',
+  '..oGGGGGGGGGGo..',
+  '.oGGWWGGGGWWGGo.',
+  '.oGGWrGGGGrWGGo.',
+  '.oGGGGGGGGGGGGo.',
+  '.oGGGGDDDDGGGGo.',
+  '.oGGGGGGGGGGGGo.',
+  '.oGGGGGGGGGGGGo.',
+  '..oGGGGGGGGGGo..',
+  '..oGGGGGGGGGGo..',
+  '.oGGGGGGGGGGGGo.',
+  '.oooooooooooooo.',
+  '................',
+];
+const SPIDER_MAP = [
+  '................',
+  'o..............o',
+  'oo............oo',
+  '.oo..oooooo..oo.',
+  '..oooGGGGGGooo..',
+  '.oGGGGGGGGGGGGo.',
+  'oGGWWGGGGGGWWGGo',
+  'oGGWrGGGGGGrWGGo',
+  'oGGGGGGGGGGGGGGo',
+  '.oGGGDDDDDDGGGo.',
+  '.oGGGGGGGGGGGGo.',
+  '..oGGGGGGGGGGo..',
+  '.oo.oooooooo.oo.',
+  'oo.o........o.oo',
+  'o..o........o..o',
+  '................',
+];
+const TOWER_MAP = [
+  '................',
+  '....oooooooo....',
+  '...oDDDDDDDDo...',
+  '...oGGGGGGGGo...',
+  '..oGGWWGGWWGGo..',
+  '..oGGWrGGrWGGo..',
+  '..oGGGGGGGGGGo..',
+  '..oGGGDDDDGGGo..',
+  '..oGGGGGGGGGGo..',
+  '.oDDDDDDDDDDDDo.',
+  '.oGGGGGGGGGGGGo.',
+  '.oGGGGGGGGGGGGo.',
+  '.oDDDDDDDDDDDDo.',
+  '.oGGGGGGGGGGGGo.',
+  '.oooooooooooooo.',
+  '................',
+];
 const bossDefs = [
-  { name:'いわの ゴロン',   pal:{ o:'#2e2e2e', G:'#8c8c8c', D:'#5f5f5f', W:'#ffffff', r:'#c0392b' } },
-  { name:'マグマの ゴロン', pal:{ o:'#3d0f08', G:'#c05038', D:'#7a2a18', W:'#ffe74a', r:'#7a1f16' } },
-  { name:'やみの ゴロン',   pal:{ o:'#1a1030', G:'#6a5595', D:'#463368', W:'#c5f7ff', r:'#e85bb0' } },
+  { name:'つちの ゴロン',     map:GOLEM_MAP,  pal:{ o:'#4a3018', G:'#9b6b3f', D:'#6e4a26', W:'#ffffff', r:'#c0392b' } },
+  { name:'いわの ゴロン',     map:GOLEM_MAP,  pal:{ o:'#2e2e2e', G:'#8c8c8c', D:'#5f5f5f', W:'#ffffff', r:'#c0392b' } },
+  { name:'みどりの スライム', map:SLIME_MAP,  pal:{ o:'#1a5a24', G:'#5ac04a', D:'#2e8a34', W:'#ffffff', r:'#1a3a10' } },
+  { name:'マグマの ゴロン',   map:GOLEM_MAP,  pal:{ o:'#3d0f08', G:'#c05038', D:'#7a2a18', W:'#ffe74a', r:'#7a1f16' } },
+  { name:'どうくつの クモ',   map:SPIDER_MAP, pal:{ o:'#1a1010', G:'#4a3038', D:'#2a1a20', W:'#ff4a3a', r:'#8a0f08' } },
+  { name:'こおりの ゴロン',   map:GOLEM_MAP,  pal:{ o:'#124a6e', G:'#8fd7f2', D:'#4aa8d8', W:'#ffffff', r:'#1d7ed6' } },
+  { name:'やみの ゴロン',     map:GOLEM_MAP,  pal:{ o:'#1a1030', G:'#6a5595', D:'#463368', W:'#c5f7ff', r:'#e85bb0' } },
+  { name:'こくようせきの まもりびと', map:TOWER_MAP, pal:{ o:'#160d24', G:'#372352', D:'#2a1b40', W:'#d3a6ff', r:'#b06bff' } },
+  { name:'ネザーの りゅうおう', map:SPIDER_MAP, pal:{ o:'#2a0c08', G:'#8a3d3d', D:'#5c2222', W:'#ffe14a', r:'#ff4a3a' } },
 ];
 function currentBossDef() {
-  return bossDefs[Math.min(Math.max(Math.floor(state.depth/3)-1, 0), 2)];
+  // もぐるほど あたらしい ボスが でてくる（ふかさ3ごとに 1たい）
+  const idx = Math.max(0, Math.floor(state.depth/3) - 1);
+  return bossDefs[Math.min(idx, bossDefs.length - 1)];
 }
 // 👑 ボスの たいりょく: もぐるほど つよくなる（3→4→5→6→つよいボスは7でうちどめ）
 //    ※きみも レベルと そうびで つよくなるので、おなじ ペースで あがる
@@ -3401,7 +3728,7 @@ function setupBoss() {
   $('bossName').textContent = '👑 ' + def.name;
   const x = $('bossCv').getContext('2d');
   x.clearRect(0,0,16,16);
-  pixelMap(x, GOLEM_MAP, def.pal);
+  pixelMap(x, def.map || GOLEM_MAP, def.pal);
   renderBossHearts();
   $('petCheer').textContent = '';
   $('stageMsg').textContent = `👑 ボスが あらわれた！ ${state.bossHpMax}かい こうげきしよう！`
@@ -3495,10 +3822,17 @@ function drawAvatar(cv, cfg, pose, lv) {
   } else {
     px(3,8,2,4,T); px(3,12,2,2,S);
     px(11,8,2,4,T); px(11,12,2,2,S);
-    // ✋ つくった いちばん いい ツールを 手に もつ
+    // ✋ つくった いちばん いい ツールを 手に もつ（けんを そうびしていたら けんが ゆうせん）
     try {
+      const swm = chosenMat('sword');
       const pm = equippedPick();
-      if (pm && gearPals[pm]) {
+      if (swm && gearPals[swm]) {
+        const g = gearPals[swm];
+        for (let i=0;i<7;i++) px(13, 6+i, 2, 1, g.m);   // やいば（たてに もつ）
+        px(13,6,2,1,g.l);
+        px(12,13,4,1,'#5a3d1e');                        // つば
+        px(13,14,2,2,'#8a5c33');                        // つか
+      } else if (pm && gearPals[pm]) {
         const col = gearPals[pm].m;
         px(13,11,1,5,'#8a5c33');
         px(12,10,3,1,col); px(11,11,1,1,col); px(15,11,1,1,col);
@@ -3607,9 +3941,7 @@ function renderAvatarOptions() {
 function renderGearOptions(box) {
   const gear = store.get('gear', {});
   const owned = {};
-  EQUIP_PIECES.forEach(p => {
-    owned[p] = GEAR_MATS.filter(m => (gear[p+'_'+m]||0) > 0);
-  });
+  EQUIP_PIECES.forEach(p => { owned[p] = ownedMatsOf(p); });
   const anyOwned = EQUIP_PIECES.some(p => owned[p].length > 0);
   const head = document.createElement('div');
   head.className = 'avGearHead';
@@ -3632,6 +3964,7 @@ function renderGearOptions(box) {
     lab.textContent = pieceDefs[piece].name;
     row.appendChild(lab);
     const cur = sel[piece] || 'auto';
+    const gearIcon = (p, m) => p === 'sword' ? drawSword(m) : drawGear(p, m);
     const mkTxt = (txt, val) => {
       const b = document.createElement('button');
       b.className = 'avOpt avStyle' + (cur === val ? ' sel' : '');
@@ -3644,7 +3977,7 @@ function renderGearOptions(box) {
       const b = document.createElement('button');
       b.className = 'avOpt avGear' + (cur === m ? ' sel' : '');
       b.title = matNameOf(m) + 'の ' + pieceDefs[piece].name;
-      b.appendChild(drawGear(piece, m));
+      b.appendChild(gearIcon(piece, m));
       b.addEventListener('click', () => { setEquipSel(piece, m); sfx.tap(); refreshAvatar('idle'); renderAvatarOptions(); });
       row.appendChild(b);
     });
@@ -3659,13 +3992,44 @@ function renderGearOptions(box) {
 
 // ---------- プロジェクト（たてもの） ----------
 const projects = {
-  house: { name:'おうち', emoji:'🏠',
+  house: { name:'おうち', emoji:'🏠', mat:'wood',
     steps:['どだいが できた！','かべが できた！','ドアが ついた！','まどが ついた！','やねが できた！','🎉 おうちが かんせい！'] },
-  castle: { name:'おしろ', emoji:'🏰',
+  castle: { name:'おしろ', emoji:'🏰', mat:'coal',
     steps:['いしの どだいが できた！','じょうへきが できた！','もんが ついた！','まどが ついた！','とうが たった！','🎉 おしろが かんせい！'] },
-  rocket: { name:'ロケット', emoji:'🚀',
+  rocket: { name:'ロケット', emoji:'🚀', mat:'quartz',
     steps:['はっしゃだいが できた！','したの ぶぶんが できた！','うえの ぶぶんが できた！','まどが ついた！','とんがりが ついた！','🚀 ロケット かんせい！'] },
+  car: { name:'くるま', emoji:'🚗', mat:'iron',
+    steps:['タイヤが できた！','ゆかが できた！','ボディが できた！','まどが ついた！','ライトが ついた！','🚗 くるま かんせい！'] },
+  ship: { name:'ふね', emoji:'⛵', mat:'wood',
+    steps:['ふなぞこが できた！','どうたいが できた！','こうはんが できた！','ほばしらが たった！','ほが はられた！','⛵ ふね かんせい！'] },
+  robot: { name:'ロボット', emoji:'🤖', mat:'redstone',
+    steps:['あしが できた！','どうたいが できた！','うでが ついた！','あたまが ついた！','めが ひかった！','🤖 ロボット かんせい！'] },
+  station: { name:'うちゅうステーション', emoji:'🛰️', mat:'diamond',
+    steps:['しんの モジュールが できた！','リングが できた！','つうろが つながった！','ソーラーパネルが ひらいた！','アンテナが たった！','🛰️ うちゅうステーション かんせい！'] },
 };
+// 🏗️ つくるものごとの ひつような そざい（かんせい までの ごうけい・2026-08-22 Mio してい）
+//    むずかしさに さが ある: おうち→ふね→くるま→ロボット→ロケット→おしろ→うちゅうステーション
+const BUILD_TOTALS = {
+  house:   [['wood',20],['coal',20]],
+  ship:    [['wood',40],['iron',10]],
+  car:     [['amethyst',10],['lapis',10]],
+  robot:   [['redstone',30],['iron',20],['netherite',5]],
+  rocket:  [['quartz',40],['iron',40],['emerald',5]],
+  castle:  [['coal',50],['emerald',40],['amethyst',10],['lapis',5]],
+  station: [['obsidian',10],['diamond',70],['iron',30]],
+};
+// 6だんかいに わけて はらう（あわせると ちょうど ごうけいに なる）
+function buildNeedOf(key, stageIdx) {
+  const done = (stageIdx === undefined) ? (state.build[key] || 0) : stageIdx;
+  const i = Math.max(0, Math.min(done, 5));
+  const tot = BUILD_TOTALS[key] || [['wood',10]];
+  return tot.map(([k,n]) => [k, Math.floor(n*(i+1)/6) - Math.floor(n*i/6)]).filter(([,n]) => n > 0);
+}
+// むずかしさ（⭐の かず）。かんたんな ものから じゅんに ちょうせん できる
+const PROJECT_LEVEL = { house:1, ship:2, car:3, robot:4, rocket:5, castle:6, station:7 };
+function buildTotalText(key) {
+  return (BUILD_TOTALS[key] || [['wood',10]]).map(([k,n]) => `${resName(k)}${n}`).join('＋');
+}
 function drawSky(x) {
   x.clearRect(0,0,64,52);
   x.fillStyle = '#a5d8ff'; x.fillRect(0,0,64,44);
@@ -3760,7 +4124,75 @@ function drawRocket(x, part) {
     x.fillStyle='#fdfdfd'; x.fillRect(8,6,2,2); x.fillRect(52,10,2,2); x.fillRect(14,14,1,1); x.fillRect(48,4,1,1);
   }
 }
-const projectDrawers = { house:drawHouse, castle:drawCastle, rocket:drawRocket };
+function drawCar(x, part) {
+  drawSky(x);
+  if (part>=1) { x.fillStyle='#2b2b2b'; x.fillRect(14,38,8,8); x.fillRect(42,38,8,8);
+                 x.fillStyle='#6f6f6f'; x.fillRect(16,40,4,4); x.fillRect(44,40,4,4); }
+  if (part>=2) { x.fillStyle='#5f5f6a'; x.fillRect(10,34,44,6); }
+  if (part>=3) { x.fillStyle='#c0453c'; x.fillRect(10,26,44,8);
+                 x.fillStyle='#a8362e'; x.fillRect(10,32,44,2); }
+  if (part>=4) { x.fillStyle='#8fd7f2'; x.fillRect(22,16,20,10);
+                 x.fillStyle='#c0453c'; x.fillRect(30,16,3,10);
+                 x.fillStyle='#a8362e'; x.fillRect(22,16,20,1); }
+  if (part>=5) { x.fillStyle='#ffe74a'; x.fillRect(52,28,3,4); x.fillStyle='#c0453c'; x.fillRect(9,28,3,4); }
+  if (part>=6) { x.fillStyle='#f7d354'; x.fillRect(10,24,44,2);
+                 x.fillStyle='#fdfdfd'; x.fillRect(56,30,6,2); x.fillRect(58,34,5,2); }
+}
+function drawShip(x, part) {
+  drawSky(x);
+  x.fillStyle='#4aa8e8'; x.fillRect(0,40,64,12);
+  x.fillStyle='#3a90d8'; for(let i=0;i<64;i+=8) x.fillRect(i,40,4,2);
+  if (part>=1) { x.fillStyle='#6e4a26'; x.fillRect(14,38,36,6); }
+  if (part>=2) { x.fillStyle='#8a5c33'; x.fillRect(12,32,40,6);
+                 x.fillStyle='#a07845'; x.fillRect(12,32,40,2); }
+  if (part>=3) { x.fillStyle='#c89858'; x.fillRect(12,30,40,2);
+                 x.fillStyle='#6e4a26'; x.fillRect(12,28,2,2); x.fillRect(50,28,2,2); }
+  if (part>=4) { x.fillStyle='#6e4a26'; x.fillRect(31,6,3,24); }
+  if (part>=5) { x.fillStyle='#f2ece0'; x.fillRect(18,10,13,18);
+                 x.fillStyle='#d8d2c4'; x.fillRect(18,18,13,2);
+                 x.fillStyle='#f2ece0'; x.fillRect(34,12,12,16); }
+  if (part>=6) { x.fillStyle='#c0453c'; x.fillRect(34,4,10,4); x.fillStyle='#6e4a26'; x.fillRect(31,3,3,3);
+                 x.fillStyle='#fdfdfd'; x.fillRect(4,8,3,3); x.fillRect(56,14,3,3); }
+}
+function drawRobot(x, part) {
+  drawSky(x);
+  if (part>=1) { x.fillStyle='#5f6a74'; x.fillRect(22,38,6,8); x.fillRect(36,38,6,8);
+                 x.fillStyle='#3f4a54'; x.fillRect(20,46,10,3); x.fillRect(34,46,10,3); }
+  if (part>=2) { x.fillStyle='#9fa9b8'; x.fillRect(20,20,24,18);
+                 x.fillStyle='#7d8794'; x.fillRect(20,30,24,2); }
+  if (part>=3) { x.fillStyle='#7d8794'; x.fillRect(12,22,8,4); x.fillRect(44,22,8,4);
+                 x.fillStyle='#5f6a74'; x.fillRect(10,26,6,8); x.fillRect(48,26,6,8); }
+  if (part>=4) { x.fillStyle='#cfd6dd'; x.fillRect(24,6,16,14);
+                 x.fillStyle='#9fa9b8'; x.fillRect(24,6,16,2); }
+  if (part>=5) { x.fillStyle='#e84a3a'; x.fillRect(27,11,4,4); x.fillRect(34,11,4,4);
+                 x.fillStyle='#ff9a8a'; x.fillRect(28,12,1,1); x.fillRect(35,12,1,1); }
+  if (part>=6) { x.fillStyle='#e84a3a'; x.fillRect(30,2,4,4); x.fillStyle='#8a8a8a'; x.fillRect(31,4,2,3);
+                 x.fillStyle='#4fd8e8'; x.fillRect(28,24,8,6);
+                 x.fillStyle='#a8f0f8'; x.fillRect(29,25,2,2); }
+}
+function drawStation(x, part) {
+  // うちゅうの せかい（そらは くろ、ほしが きらり）
+  x.clearRect(0,0,64,52);
+  x.fillStyle='#0b0b1e'; x.fillRect(0,0,64,52);
+  x.fillStyle='#fdfdfd';
+  [[6,6],[54,10],[16,42],[48,44],[30,4],[10,26],[58,30]].forEach(([i,j])=>x.fillRect(i,j,1,1));
+  if (part>=1) { x.fillStyle='#cfd6dd'; x.fillRect(26,20,12,14);
+                 x.fillStyle='#9fa9b8'; x.fillRect(26,26,12,2); }
+  if (part>=2) { x.fillStyle='#9fa9b8';
+                 x.fillRect(18,14,28,3); x.fillRect(18,37,28,3);
+                 x.fillRect(18,14,3,26); x.fillRect(43,14,3,26); }
+  if (part>=3) { x.fillStyle='#cfd6dd'; x.fillRect(21,25,5,4); x.fillRect(38,25,5,4); }
+  if (part>=4) { x.fillStyle='#2b5a8a'; x.fillRect(2,20,14,12); x.fillRect(48,20,14,12);
+                 x.fillStyle='#4a90f8'; for(let j=20;j<32;j+=4){ x.fillRect(2,j,14,2); x.fillRect(48,j,14,2); }
+                 x.fillStyle='#9fa9b8'; x.fillRect(16,25,3,2); x.fillRect(45,25,3,2); }
+  if (part>=5) { x.fillStyle='#cfd6dd'; x.fillRect(31,8,2,12);
+                 x.fillStyle='#e8e8ee'; x.fillRect(28,6,8,2); }
+  if (part>=6) { x.fillStyle='#4fd8e8'; x.fillRect(29,23,6,6);
+                 x.fillStyle='#a8f0f8'; x.fillRect(30,24,2,2);
+                 x.fillStyle='#ffe74a'; x.fillRect(24,17,2,2); x.fillRect(39,36,2,2); }
+}
+const projectDrawers = { house:drawHouse, castle:drawCastle, rocket:drawRocket,
+                         car:drawCar, ship:drawShip, robot:drawRobot, station:drawStation };
 function renderProjectCards() {
   const box = $('projectCards');
   box.innerHTML = '';
@@ -3776,7 +4208,9 @@ function renderProjectCards() {
     const info = document.createElement('div');
     info.className = 'projInfo';
     const status = done >= 6 ? '✅ かんせい！ また つくれるよ' : done > 0 ? `つくりかけ ${done}/6 （つづきから！）` : 'まだ つくってないよ';
-    info.innerHTML = `<b>${p.emoji} ${p.name}</b><span>${status}</span>`;
+    const stars = '⭐'.repeat(PROJECT_LEVEL[key] || 1);
+    info.innerHTML = `<b>${p.emoji} ${p.name}</b><span>${stars} むずかしさ</span>`
+      + `<span style="font-size:10px;line-height:1.4">ぜんぶで ${buildTotalText(key)}</span><span>${status}</span>`;
     card.appendChild(cv); card.appendChild(info);
     card.addEventListener('click', () => {
       sfx.tap();
@@ -3913,7 +4347,7 @@ function showMap() {
   if (pk) {
     const ps = document.createElement('span');
     ps.className = 'markerPet';
-    ps.textContent = petDefs[pk].emoji;
+    ps.appendChild(creatureEl(pk, petStage(pk), 22));
     marker.appendChild(ps);
   }
   marker.style.left = `calc(${pts[currentIdx].x}% + ${pts[currentIdx].x > 50 ? -78 : 48}px)`;
@@ -4040,7 +4474,7 @@ function speak(text) {
       u.lang = 'ja-JP';
       u.rate = 0.78;
       u.pitch = 1.22;
-      u.volume = .95;
+      u.volume = .95 * 0.8;   // 🦉ふくろう先生の こえは 2わりだけ 小さく（せつめいが きこえないと こまるため）
       u.onend = () => setTimeout(next, pause);
       u.onerror = () => setTimeout(next, pause);
       speechSynthesis.speak(u);
@@ -4383,7 +4817,8 @@ function openTreasure() {
   ownedAnimals.forEach(k => {
     const item = document.createElement('div');
     item.className = 'tItem';
-    item.innerHTML = `<span class="tEmoji">${animalDefs[k].emoji}</span><span>${animalDefs[k].name} ×${state.animals[k]}</span>`;
+    item.innerHTML = `<span class="tEmoji"></span><span>${animalDefs[k].name} ×${state.animals[k]}</span>`;
+    item.querySelector('.tEmoji').appendChild(creatureEl(k, 2, 30));
     aBox.appendChild(item);
   });
   const pBox = $('tPets');
@@ -4394,7 +4829,8 @@ function openTreasure() {
   ownedPets.forEach(k => {
     const item = document.createElement('div');
     item.className = 'tItem' + (store.get('activePet',null)===k ? ' activePetItem' : '');
-    item.innerHTML = `<span class="tEmoji">${petDefs[k].emoji}</span><span>${petDefs[k].name} ×${pets[k]}${store.get('activePet',null)===k?'（あいぼう）':''}</span>`;
+    item.innerHTML = `<span class="tEmoji"></span><span>${petDefs[k].name}（${petStageLabel(k)}）${store.get('activePet',null)===k?'★あいぼう':''}</span>`;
+    item.querySelector('.tEmoji').appendChild(creatureEl(k, petStage(k), 32));
     item.addEventListener('click', () => {
       store.set('activePet', k);
       updatePetBuddy();
@@ -4503,19 +4939,22 @@ function blockTypeForDepth() {
   // 🌱 ごほうびひかえめモード: 見た目＝中身ルールを守るため、レア鉱石ブロックじたいを出さない
   if (dropsEased()) {
     if (d===1) return ['grass','oakwood','birchwood','dirt','water'];
-    if (d===2) return ['dirt','stone','copper','oakwood','water'];
-    return ['stone','stone','dirt','copper','iron','water'];
+    if (d===2) return ['dirt','stone','coal','copper','oakwood','water'];
+    return ['stone','stone','dirt','coal','copper','iron','water'];
   }
   if (d===1) return ['grass','oakwood','birchwood','dirt','water'];
-  if (d===2) return ['dirt','stone','copper','oakwood','water'];
-  if (d<=4) return ['stone','stone','copper','iron','redstone','water'];
-  return ['deepslate','deepslate','gold','diamond','redstone','magma'];
+  if (d===2) return ['dirt','stone','coal','copper','oakwood','water'];
+  if (d<=4) return ['stone','stone','coal','copper','iron','lapis','redstone','water'];
+  if (d<=6) return ['deepslate','deepslate','gold','diamond','emerald','amethyst','redstone','obsidian','magma'];
+  // ふかさ7いじょう＝ネザーの そう。さいきょうの ネザライトと クォーツが でる
+  return ['netherrack','netherrack','quartz','netherite','gold','diamond','obsidian','magma'];
 }
 function depthBg(d) {
   if (state.rainbowMode) return 'linear-gradient(#5a2a88, #2b1a4e)';
   if (d===1) return 'linear-gradient(#79b1ff, #a5d8ff)';
   if (d===2) return 'linear-gradient(#8a6b4a, #6e4f30)';
   if (d<=4) return 'linear-gradient(#5c5c66, #3f3f47)';
+  if (d>=7) return 'linear-gradient(#7d2b1a, #2a0c08)';   // 🔥 ネザーの そう
   // たいまつが あれば ふかい どうくつも あたたかい あかりに
   return store.get('torches', 0) > 0 ? 'linear-gradient(#5a4a34, #322818)' : 'linear-gradient(#2b2b33, #16161b)';
 }
@@ -4539,7 +4978,9 @@ function buildStage() {
   const owned = Object.keys(animalDefs).filter(k => state.animals[k] > 0);
   if (owned.length) {
     const ak = owned[Math.floor(Math.random()*owned.length)];
-    $('petCheer').textContent = `${animalDefs[ak].emoji} ${animalDefs[ak].name}が おうえんしてるよ！`;
+    $('petCheer').innerHTML = '';
+    $('petCheer').appendChild(creatureEl(ak, 2, 22));
+    $('petCheer').appendChild(document.createTextNode(` ${animalDefs[ak].name}が おうえんしてるよ！`));
   } else {
     $('petCheer').textContent = '';
   }
@@ -4578,7 +5019,7 @@ function buildStage() {
       b.appendChild(makeTexture('stone', randInt(1,99999)));
       const face = document.createElement('div');
       face.className = 'animalFace';
-      face.textContent = animalDefs[ak].emoji;
+      face.appendChild(creatureEl(ak, 2, 30));
       b.appendChild(face);
       const bars = document.createElement('div');
       bars.className = 'bars';
@@ -4588,7 +5029,9 @@ function buildStage() {
       b.dataset.bt = bt;
       b.appendChild(makeTexture(bt, randInt(1,99999)));
       // 見た目と 中身を いっち：ダイヤ鉱石からは ダイヤが でる！
-      if (['copper','iron','redstone','gold','diamond','oakwood','birchwood'].includes(bt)) b.dataset.ore = bt;
+      if (['copper','iron','redstone','gold','diamond','oakwood','birchwood',
+           'coal','lapis','emerald','amethyst','quartz','netherite','obsidian'].includes(bt)) b.dataset.ore = bt;
+      else if (bt === 'netherrack') b.dataset.ore = pickOne(['coal','quartz']);   // ネザーの いわからは せきたんか クォーツ
       else if (bt === 'magma') b.dataset.ore = 'gold';                      // マグマには きんが とけている
       else if (bt === 'water') b.dataset.ore = pickOne(['copper','iron']); // みずには どうか てつが ながれつく
       const q = document.createElement('div');
@@ -4713,7 +5156,7 @@ function onBlockTap(blockEl) {
     renderQuestionUI();
     return;
   }
-  openQuestion(sp ? (sp === 'animal' ? `${animalDefs[blockEl.dataset.animal].emoji} ${specialTitles.animal}` : specialTitles[sp]) : null);
+  openQuestion(sp ? (sp === 'animal' ? `${animalDefs[blockEl.dataset.animal].name}「${specialTitles.animal}」` : specialTitles[sp]) : null);
 }
 // 当てずっぽう たいさく：まちがえたら もんだいごと さしかえ（消去法が きかない）
 let swapTimer = null;
@@ -4966,6 +5409,7 @@ function finishBreak() {
       drops.forEach(k => { state.inv[k] = (state.inv[k]||0)+1; missionEvent('drop', k); missionEvent('block'); });
       store.set('inv', state.inv);
       renderInv();
+      renderGoalBar();
       const best = drops.slice().sort((a,b)=>ores[b].r-ores[a].r)[0];
       const counts = {};
       drops.forEach(k=>counts[k]=(counts[k]||0)+1);
@@ -5023,9 +5467,9 @@ function finishBreak() {
     store.set('animals', state.animals);
     missionEvent('animal');
     missionEvent('block');
-    markBroken(el, animalDefs[ak].emoji);
+    markBroken(el, creatureEl(ak, 2, 30));
     confettiBurst(20);
-    showGetEmoji(animalDefs[ak].emoji,
+    showGetPix(drawCreature(ak, 2, 16),
       `${animalDefs[ak].name}が なかまに なった！`,
       '🌟 どうぶつを たすけた！',
       afterBanner);
@@ -5058,9 +5502,10 @@ function finishBreak() {
     store.set('seeds', store.get('seeds',0)+1);
     bonusNotes.push('🌱たねも みつけた！');
   }
-  kinds.forEach(k => { state.inv[k] = (state.inv[k]||0)+1; missionEvent('drop', k); });
+  kinds.forEach(k => { state.inv[k] = (state.inv[k]||0)+1; missionEvent('drop', k); markSeen(k); });
   store.set('inv', state.inv);
   renderInv(kinds[0]);
+  renderGoalBar();
   missionEvent('block');
   markBroken(el, drawItem(kinds[0]));
   // こうせきからは まれに その そざいの けんが みつかる！
@@ -5151,11 +5596,12 @@ const pieceDefs = {
   legs:   { name:'レギンス',   cost:7 },
   boots:  { name:'ブーツ',     cost:4 },
   shield: { name:'たて',       cost:6 },
+  sword:  { name:'けん',       cost:2 },
 };
 // 🧱 そうびに つかえる そざい（よわい→つよい の じゅんばん。き と にじダイヤを ついか）
-const GEAR_MATS = ['wood','copper','redstone','iron','gold','diamond','rainbow'];
+const GEAR_MATS = ['wood','copper','redstone','iron','gold','diamond','netherite','rainbow'];
 // にじダイヤは とても レアなので ひつような かずを すくなくする
-const matCostOf = (piece, mat) => mat === 'rainbow'
+const matCostOf = (piece, mat) => (mat === 'rainbow' || mat === 'netherite')
   ? Math.max(1, Math.ceil(pieceDefs[piece].cost * .4))
   : pieceDefs[piece].cost;
 const matNameOf = m => m === 'wood' ? 'き' : (ores[m] ? ores[m].name : m);
@@ -5210,7 +5656,7 @@ function bestMat(piece) {
   return null;
 }
 // 🛡️ たての ちから: そうびしている たての そざいで ボスの たいりょくが へる
-const shieldCut = { wood:1, copper:1, redstone:1, iron:2, gold:2, diamond:3, rainbow:3 };
+const shieldCut = { wood:1, copper:1, redstone:1, iron:2, gold:2, diamond:3, netherite:3, rainbow:3 };
 function equippedShieldCut() {
   const m = chosenMat('shield');
   return m ? (shieldCut[m] || 0) : 0;
@@ -5273,7 +5719,7 @@ function craftRecipes() {
 }
 // ⛏️ つるはしの ランクで こわすのに ひつような タップかいすうが かわる
 // なし=4かい／どう・レッドストーン=3かい／てつ・きん=2かい／ダイヤ=1かい
-const pickTaps = { wood:3, copper:3, redstone:3, iron:2, gold:2, diamond:1, rainbow:1 };
+const pickTaps = { wood:3, copper:3, redstone:3, iron:2, gold:2, diamond:1, netherite:1, rainbow:1 };
 function equippedPick() {
   const gear = store.get('gear', {});
   const sel = store.get('equipSel', {}).pick;
@@ -5286,13 +5732,25 @@ function equippedPick() {
   return best;
 }
 // 👕 そうびの えらびかた: 'auto'=いちばんいいの / 'none'=はずす / それいがい=えらんだ そざい
-const EQUIP_PIECES = ['pick','shield','helmet','chest','legs','boots'];
+const EQUIP_PIECES = ['pick','sword','shield','helmet','chest','legs','boots'];
+// ⚔️ けんは gear ではなく swords に はいっている（もちものが べつ）
+function ownedMatsOf(piece) {
+  if (piece === 'sword') { const sw = store.get('swords', {}); return GEAR_MATS.filter(m => (sw[m]||0) > 0); }
+  const gear = store.get('gear', {});
+  return GEAR_MATS.filter(m => (gear[piece+'_'+m]||0) > 0);
+}
 function chosenMat(piece) {
   if (piece === 'pick') return equippedPick();
   const sel = store.get('equipSel', {})[piece];
   if (sel === 'none') return null;
-  if (sel && sel !== 'auto' && (store.get('gear',{})[piece+'_'+sel]||0) > 0) return sel;
-  return bestMat(piece);
+  const owned = ownedMatsOf(piece);
+  if (sel && sel !== 'auto' && owned.includes(sel)) return sel;
+  return owned.length ? owned[owned.length-1] : null;   // いちばん つよい そざい
+}
+// ⚔️ そうびした けんの つよさ（0=なし 〜 8）。レアな たからが すこし でやすくなる
+function equippedSwordRank() {
+  const m = chosenMat('sword');
+  return m ? GEAR_MATS.indexOf(m) + 1 : 0;
 }
 function setEquipSel(piece, val) {
   const sel = store.get('equipSel', {});
@@ -5309,7 +5767,14 @@ function hasHoe() { return (store.get('gear',{})['hoe_wood']||0) > 0; }
 function tapsForBlock(blockEl) {
   const bt = blockEl && blockEl.dataset.bt;
   if (hasAxe() && (bt === 'oakwood' || bt === 'birchwood')) return 1;
+  // 🟪 こくようせきは とても かたい。ダイヤいじょうの つるはしが ないと よぶんに タップが かかる
+  if (bt === 'obsidian') return canBreakObsidian() ? 2 : 6;
   return requiredTaps();
+}
+// ダイヤ・ネザライト・にじダイヤの つるはしなら こくようせきを ほれる
+function canBreakObsidian() {
+  const pm = equippedPick();
+  return pm === 'diamond' || pm === 'netherite' || pm === 'rainbow';
 }
 function giveGear(piece, mat) {
   const gear = store.get('gear', {});
@@ -5350,16 +5815,34 @@ function craftRowEl(r) {
   }).join('　');
   info.innerHTML = `<b>${r.name}</b>${needsHtml}`;
   row.appendChild(info);
+  const canMake = r.needs.every(([k,n]) => haveOf(k) >= n);
+  // 🎯 まだ つくれない ものには「もくひょうに する」ボタンを だす
+  if (!canMake && r.key) {
+    const goal = store.get('goal', null);
+    const gb = document.createElement('button');
+    gb.className = 'btn craftGoal' + (goal && goal.key === r.key ? ' sel' : '');
+    gb.textContent = (goal && goal.key === r.key) ? '🎯 もくひょう中' : '🎯 もくひょうに する';
+    gb.addEventListener('click', () => {
+      sfx.tap();
+      if (goal && goal.key === r.key) clearGoal(); else setGoal(r);
+      renderCraft();
+    });
+    row.appendChild(gb);
+  }
   const btn = document.createElement('button');
   btn.className = 'btn craftGo';
   btn.textContent = 'つくる';
-  btn.disabled = !r.needs.every(([k,n]) => haveOf(k) >= n);
+  btn.disabled = !canMake;
   btn.addEventListener('click', () => {
     if (!r.needs.every(([k,n]) => haveOf(k) >= n)) return;
     sfx.pick();
     payCost(r.needs);
     r.give();
+    // もくひょうだった ものを つくったら もくひょうを クリア
+    const g = store.get('goal', null);
+    if (g && g.key === r.key) clearGoal();
     renderCraft();
+    renderGoalBar();
   });
   row.appendChild(btn);
   return row;
@@ -5458,35 +5941,43 @@ function renderCraft() {
   const fx = $('craftFixed');
   fx.innerHTML = '';
   fx.appendChild(craftRowEl({
-    name:'ぼう ×4', icon:()=>drawItem('stick'),
+    key:'fx_stick', name:'ぼう ×4', icon:()=>drawItem('stick'),
     needs:[['wood',2]],
     give:()=>{ store.set('sticks', store.get('sticks',0)+4); toast('🪵 ぼうを 4ほん つくった！'); },
   }));
   fx.appendChild(craftRowEl({
-    name:'たいまつ ×2（ふかい どうくつが あかるくなる！）', icon:()=>drawItem('torch'),
+    key:'fx_torch', name:'たいまつ ×2（ふかい どうくつが あかるくなる！）', icon:()=>drawItem('torch'),
     needs:[['stick',1],['redstone',1]],
     give:()=>{ store.set('torches', store.get('torches',0)+2); confettiBurst(15); toast('🔥 たいまつを 2ほん つくった！ どうくつが あかるくなるよ！'); },
   }));
   fx.appendChild(craftRowEl({
-    name:'きの おの（木の ブロックが 1かいで こわせる！）', icon:()=>drawGear('axe','wood'),
+    key:'axe_wood', name:'きの おの（木の ブロックが 1かいで こわせる！）', icon:()=>drawGear('axe','wood'),
     needs:[['wood',3],['stick',2]],
     give:()=>{ giveGear('axe','wood'); },
   }));
   fx.appendChild(craftRowEl({
-    name:'きの くわ（はたけの しゅうかくが 2ばいに！）', icon:()=>drawGear('hoe','wood'),
+    key:'hoe_wood', name:'きの くわ（はたけの しゅうかくが 2ばいに！）', icon:()=>drawGear('hoe','wood'),
     needs:[['wood',2],['stick',2]],
     give:()=>{ giveGear('hoe','wood'); },
   }));
-  fx.appendChild(craftRowEl({
-    name:'たてざい（いえが 1だんかい すすむ！）', icon:()=>{ const cv=document.createElement('canvas'); cv.width=64; cv.height=52; cv.className='pix'; projectDrawers[state.project](cv.getContext('2d'), Math.min(6,(state.build[state.project]||0)+1)); return cv; },
-    needs:[['wood',10]],
-    give:()=>{
-      if (state.build[state.project] < 6) state.build[state.project]++;
-      store.set('build', state.build);
-      confettiBurst(30);
-      toast(`🏠 たてざいで ${projects[state.project].name}が 1だんかい すすんだ！`);
-    },
-  }));
+  // 🏗️ たてざい: つくるものによって ひつような そざいが ちがう（ほしい ものと ほる ばしょが つながる）
+  {
+    const pj = projects[state.project];
+    const need = buildNeedOf(state.project);
+    fx.appendChild(craftRowEl({
+      key:'build_'+state.project,
+      name:`${pj.emoji} たてざい（${pj.name} ${Math.min(6,(state.build[state.project]||0)+1)}／6だんかいめ）`
+           + `<br><span style="font-size:10px;color:#8a7a55">ぜんぶで ${buildTotalText(state.project)}</span>`,
+      icon:()=>{ const cv=document.createElement('canvas'); cv.width=64; cv.height=52; cv.className='pix'; projectDrawers[state.project](cv.getContext('2d'), Math.min(6,(state.build[state.project]||0)+1)); return cv; },
+      needs:need,
+      give:()=>{
+        if (state.build[state.project] < 6) state.build[state.project]++;
+        store.set('build', state.build);
+        confettiBurst(30);
+        toast(`${pj.emoji} たてざいで ${pj.name}が 1だんかい すすんだ！`);
+      },
+    }));
+  }
   // そざい えらび
   const mats = $('craftMats');
   mats.innerHTML = '';
@@ -5505,6 +5996,59 @@ function renderCraft() {
   renderEnch();
 }
 function openCraft() { renderCraft(); $('craftOverlay').classList.add('active'); }
+
+// ---------- 🎯 もくひょう（「これが ほしいから とく」を つくる しくみ） ----------
+// クラフトで つくりたい ものを 1つ えらぶと、ゲームちゅう ずっと「あと ◯こ」が みえる
+function setGoal(recipe) {
+  store.set('goal', { key:recipe.key, name:recipe.name, needs:recipe.needs });
+  renderGoalBar();
+  toast(`🎯 もくひょうに した！「${recipe.name}」を めざそう！`);
+}
+function clearGoal() { store.set('goal', null); renderGoalBar(); }
+function goalIconEl(g) {
+  // key は 「piece_mat」 か 「sword_mat」
+  const [piece, mat] = String(g.key).split('_');
+  try {
+    if (piece === 'sword') return drawSword(mat);
+    if (piece === 'fx') return drawItem(mat === 'stick' ? 'stick' : 'torch');
+    if (piece === 'build') { const cv=document.createElement('canvas'); cv.width=64; cv.height=52; cv.className='pix';
+      projectDrawers[mat](cv.getContext('2d'), 6); return cv; }
+    if (pieceDefs[piece] && gearPals[mat]) return drawGear(piece, mat);
+  } catch(e){}
+  const s = document.createElement('span'); s.textContent = '🎯'; return s;
+}
+function goalProgress(g) {
+  return g.needs.map(([k,n]) => ({ k, n, have: Math.min(haveOf(k), n), done: haveOf(k) >= n }));
+}
+function renderGoalBar() {
+  const bar = $('goalBar');
+  if (!bar) return;
+  const g = store.get('goal', null);
+  bar.innerHTML = '';
+  if (!g) { bar.classList.remove('show'); return; }
+  bar.classList.add('show');
+  const prog = goalProgress(g);
+  const allDone = prog.every(p => p.done);
+  bar.classList.toggle('done', allDone);
+  const icon = goalIconEl(g);
+  if (icon.tagName === 'CANVAS') { icon.style.width='26px'; icon.style.height='26px'; }
+  bar.appendChild(icon);
+  const tx = document.createElement('div');
+  tx.className = 'gTx';
+  const list = prog.map(p => p.done
+      ? `${resName(p.k)} ✅`
+      : `<span class="gNeed">${resName(p.k)} あと ${p.n - p.have}</span>`).join('　');
+  tx.innerHTML = `🎯 ${g.name}<br>${allDone ? '✨ つくれるよ！ クラフトへ！' : list}`;
+  bar.appendChild(tx);
+  const btn = document.createElement('button');
+  btn.className = 'btn goalPickBtn';
+  btn.textContent = allDone ? 'つくる' : 'やめる';
+  btn.addEventListener('click', () => {
+    sfx.tap();
+    if (allDone) openCraft(); else clearGoal();
+  });
+  bar.appendChild(btn);
+}
 
 // ---------- 🦙 とりひきじょ・🌱 はたけ・✨ エンチャント・🟢 けいけんちオーブ ----------
 const cropDefs = {
@@ -5546,8 +6090,11 @@ function resName(k) {
   if (k==='seed') return 'たね';
   if (k==='egg') return 'たまご';
   if (k==='fert') return 'ひりょう';
+  if (k==='wood') return 'き';
+  if (k==='stick') return 'ぼう';
+  if (k==='torch') return 'たいまつ';
   if (cropDefs[k]) return cropDefs[k].name;
-  return ores[k].name;
+  return ores[k] ? ores[k].name : k;
 }
 const tradeDefs = [
   { give:[['copper',10]],  get:[['iron',3]] },
@@ -5563,6 +6110,77 @@ const tradeDefs = [
   { give:[['rainbow',1]],  get:[['egg',3]] },
 ];
 const llamaTalk = ['まいど！ いい とりひきだ！','おっ、めの つけどころが いいね！','また きてね〜！','ほくほくだね！'];
+
+// ---------- 📜 きょうの ちゅうもん（みじかい もくひょうが まいにち 3つ とどく） ----------
+const ORDER_ITEMS = ['coal','copper','iron','lapis','redstone','gold','carrot','potato','berry'];
+const ORDER_REWARDS = [
+  { k:'diamond', n:1 }, { k:'gold', n:3 }, { k:'fert', n:3 },
+  { k:'seed', n:4 }, { k:'egg', n:1 }, { k:'emerald', n:1 },
+];
+function makeOrders() {
+  const day = dayKey();
+  const saved = store.get('orders', null);
+  if (saved && saved.day === day) return saved;
+  // その日の たねで きまる（おなじ日は おなじ ちゅうもん）
+  let seed = 0; for (const ch of day) seed = (seed*31 + ch.charCodeAt(0)) % 99991;
+  const rndi = (n) => { seed = (seed*1103515245 + 12345) % 2147483648; return Math.floor(seed / 2147483648 * n); };
+  const list = [];
+  const used = {};
+  for (let i=0;i<3;i++) {
+    let k; do { k = ORDER_ITEMS[rndi(ORDER_ITEMS.length)]; } while (used[k]);
+    used[k] = 1;
+    const n = 2 + rndi(4);
+    const rw = ORDER_REWARDS[rndi(ORDER_REWARDS.length)];
+    list.push({ k, n, rk: rw.k, rn: rw.n, done: false });
+  }
+  const o = { day, list };
+  store.set('orders', o);
+  return o;
+}
+function renderOrders() {
+  const box = $('orderList');
+  if (!box) return;
+  box.innerHTML = '';
+  const o = makeOrders();
+  o.list.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'tradeRow' + (t.done ? ' orderDone' : '');
+    const give = document.createElement('div');
+    give.className = 'tradeSide';
+    give.appendChild(resIconEl(t.k));
+    const gn = document.createElement('span');
+    gn.className = 'tN' + (!t.done && resHave(t.k) < t.n ? ' lack' : '');
+    gn.textContent = `${resName(t.k)} ${Math.min(resHave(t.k), t.n)}/${t.n}`;
+    give.appendChild(gn);
+    const ar = document.createElement('span'); ar.className='tradeArrow'; ar.textContent='➡';
+    const get = document.createElement('div');
+    get.className = 'tradeSide';
+    get.appendChild(resIconEl(t.rk));
+    const rn = document.createElement('span'); rn.className='tN';
+    rn.textContent = `${resName(t.rk)} ×${t.rn}`;
+    get.appendChild(rn);
+    const btn = document.createElement('button');
+    btn.className = 'btn tradeGo';
+    btn.textContent = t.done ? '✅ すんだ' : 'とどける';
+    btn.disabled = t.done || resHave(t.k) < t.n;
+    btn.addEventListener('click', () => {
+      if (t.done || resHave(t.k) < t.n) return;
+      resPay(t.k, t.n);
+      resAdd(t.rk, t.rn);
+      t.done = true;
+      store.set('orders', o);
+      sfx.chest();
+      confettiBurst(20);
+      const allDone = o.list.every(x => x.done);
+      if (allDone) { sfx.levelup(); confettiBurst(45); resAdd('rainbow',1);
+        toast('📜 きょうの ちゅうもん ぜんぶ たっせい！ 🌈にじダイヤを もらった！'); }
+      else toast(`📜 ちゅうもん たっせい！ ${resName(t.rk)}を ${t.rn}こ もらった！`);
+      renderInv(); renderOrders(); renderTrade(); renderGoalBar();
+    });
+    row.appendChild(give); row.appendChild(ar); row.appendChild(get); row.appendChild(btn);
+    box.appendChild(row);
+  });
+}
 function renderTrade() {
   const list = $('tradeList');
   list.innerHTML = '';
@@ -5611,7 +6229,10 @@ function renderFarm() {
     + `<br><span style="font-size:min(3.2vw,12px)">ひりょうを あげると 1にち ぶん はやく そだつよ！（ラマの とりひきで もらえる）</span>`;
   const plotsEl = $('farmPlots');
   plotsEl.innerHTML = '';
-  const farm = store.get('farm', [null,null,null,null,null,null]);
+  // 🌱 はたけは 12マス（もともと 6マスだった データも そのまま つかえる）
+  const FARM_SLOTS = 12;
+  const farm = store.get('farm', []);
+  while (farm.length < FARM_SLOTS) farm.push(null);
   farm.forEach((pl, i) => {
     const div = document.createElement('div');
     div.className = 'plot';
@@ -5676,11 +6297,24 @@ function renderFarm() {
     it.textContent = `${cropDefs[k].emoji} ×${crops[k]}`;
     it.addEventListener('click', () => {
       const pet = store.get('activePet', null);
-      if (!pet) { toast('🐣 さきに たまごから ペットを かえそう！'); return; }
+      if (!pet) { toast('🥚 さきに たまごから ペットを かえそう！'); return; }
       resPay(k, 1);
       store.set('xp', store.get('xp',0)+3);
       sfx.chirp();
-      toast(`${petDefs[pet].emoji} もぐもぐ…だいまんぞく！❤️（XP＋3）`);
+      const grew = feedPet(pet);
+      updatePetBuddy();
+      if (grew !== null) {
+        // 🎉 せいちょうした！
+        sfx.levelup();
+        confettiBurst(40);
+        const isFinal = grew >= PET_STAGES.length - 1;
+        showGetPix(drawCreature(pet, grew, 16),
+          `${petDefs[pet].name}が ${PET_STAGES[grew].label}に なった！`,
+          isFinal ? '🌈 さいごまで そだった！！' : '🎉 おおきく なった！');
+      } else {
+        const left = petNextNeed(pet);
+        toast(`もぐもぐ…だいまんぞく！❤️（XP＋3）` + (left ? `　つぎの せいちょうまで あと ${left}こ` : ''));
+      }
       refreshAvatar('idle');
       renderFarm();
     });
@@ -5746,6 +6380,23 @@ function spawnXpOrbs() {
     }
   } catch(e){}
 }
+// ドット絵の いきものを だす バージョン
+function showGetPix(cv, title, label, onDone) {
+  const ov = $('getOverlay');
+  cv.style.width = '90px'; cv.style.height = '90px'; cv.style.imageRendering = 'pixelated';
+  $('getItemBox').innerHTML = '';
+  $('getItemBox').appendChild(cv);
+  const rar = $('getRarity');
+  rar.textContent = label;
+  rar.className = 'r2';
+  $('getName').textContent = title;
+  $('getCombo').textContent = '';
+  $('rays').classList.add('show');
+  ov.classList.add('glow');
+  ov.classList.add('active');
+  $('stageMsg').textContent = title;
+  setTimeout(() => { ov.classList.remove('active'); if (onDone) onDone(); }, 1600);
+}
 function showGetEmoji(emoji, title, label, onDone) {
   const ov = $('getOverlay');
   $('getItemBox').innerHTML = `<span class="emojiItem">${emoji}</span>`;
@@ -5791,6 +6442,7 @@ function stageClear() {
   if (state.timeUp) return;
   const key = state.project;
   if (state.build[key] < 6) state.build[key]++;
+  if (state.build[key] >= 6) markSeen('pj_'+key);
   store.set('build', state.build);
   sfx.clear();
   confettiBurst(40);
@@ -5827,7 +6479,7 @@ function stageClear() {
     bossNote + `ふかさ ${state.depth} を クリア！　ほし ${'⭐'.repeat(stars[u.id])}<br><b>${step}</b>` + extra + unlockMsg;
   const anims = Object.keys(animalDefs)
     .filter(k => state.animals[k] > 0)
-    .map(k => `${animalDefs[k].emoji}×${state.animals[k]}`)
+    .map(k => `${animalDefs[k].name}×${state.animals[k]}`)
     .join('　');
   $('clearAnimals').textContent = anims ? 'なかま: ' + anims : '';
   $('clearOverlay').classList.add('active');
@@ -5866,6 +6518,7 @@ function startGame(unit) {
   renderEggBadge();
   updatePetBuddy();
   renderInv();
+  renderGoalBar();
   buildStage();
   showScreen('game');
   renderTimer();
@@ -5924,11 +6577,63 @@ $('treasureBtn').addEventListener('click', () => openTreasure());
 $('craftBtn').addEventListener('click', () => { sfx.tap(); startBgm('shop'); openCraft(); });
 $('craftBtn2').addEventListener('click', () => { sfx.tap(); startBgm('shop'); openCraft(); });
 $('craftClose').addEventListener('click', () => { $('craftOverlay').classList.remove('active'); resumeRoomBgm(); });
-$('tradeBtn').addEventListener('click', () => { sfx.tap(); startBgm('shop'); renderTrade(); $('tradeOverlay').classList.add('active'); });
-$('tradeBtn2').addEventListener('click', () => { sfx.tap(); startBgm('shop'); renderTrade(); $('tradeOverlay').classList.add('active'); });
+$('tradeBtn').addEventListener('click', () => { sfx.tap(); startBgm('shop'); renderOrders(); renderTrade(); $('tradeOverlay').classList.add('active'); });
+$('tradeBtn2').addEventListener('click', () => { sfx.tap(); startBgm('shop'); renderOrders(); renderTrade(); $('tradeOverlay').classList.add('active'); });
 $('tradeClose').addEventListener('click', () => { $('tradeOverlay').classList.remove('active'); resumeRoomBgm(); });
 // 🏆 トロフィーのへや
+// ---------- 📖 ずかん（みつけたら いろが つく。あつめたく なる しかけ） ----------
+function dexSeen() { return store.get('dex', {}); }
+function markSeen(kind) {
+  if (!kind) return;
+  const d = dexSeen();
+  if (d[kind]) return;
+  d[kind] = 1;
+  store.set('dex', d);
+}
+function renderDex() {
+  const box = $('dexBox');
+  if (!box) return;
+  box.innerHTML = '';
+  const seen = dexSeen();
+  const inv = state.inv || {};
+  const groups = [
+    { title:'⛏️ おたから', items: Object.keys(ores).map(k => ({ k, name:ores[k].name,
+        got: (inv[k]||0) > 0 || seen[k], el:()=>drawItem(k) })) },
+    { title:'🐾 いきもの', items: Object.keys(creatureDefs).map(k => {
+        const isPet = !!petDefs[k];
+        const got = isPet ? (store.get('pets',{})[k]||0) > 0 : (state.animals[k]||0) > 0;
+        return { k, name:creatureDefs[k].name, got, el:()=>drawCreature(k, isPet ? petStage(k) : 2, 16) };
+      }) },
+    { title:'🏗️ つくったもの', items: Object.keys(projects).map(k => ({
+        k, name:projects[k].name, got:(state.build[k]||0) >= 6 || seen['pj_'+k],
+        el:()=>{ const cv=document.createElement('canvas'); cv.width=64; cv.height=52; cv.className='pix';
+                 projectDrawers[k](cv.getContext('2d'), 6); return cv; } })) },
+  ];
+  groups.forEach(g => {
+    const t = document.createElement('div');
+    t.className = 'dexTitle';
+    const gotN = g.items.filter(i => i.got).length;
+    t.textContent = `${g.title}　${gotN}/${g.items.length}`;
+    box.appendChild(t);
+    const grid = document.createElement('div');
+    grid.className = 'dexGrid';
+    g.items.forEach(it => {
+      const cell = document.createElement('div');
+      cell.className = 'dexCell' + (it.got ? ' got' : '');
+      const cv = it.el();
+      cv.style.width = '30px'; cv.style.height = it.el === undefined ? '30px' : (cv.height === 52 ? '24px' : '30px');
+      cv.style.imageRendering = 'pixelated';
+      cell.appendChild(cv);
+      const nm = document.createElement('span');
+      nm.textContent = it.got ? it.name : '？？？';
+      cell.appendChild(nm);
+      grid.appendChild(cell);
+    });
+    box.appendChild(grid);
+  });
+}
 function renderTrophy() {
+  renderDex();
   const cl = clearsData();
   const total = totalClearCount(cl);
   $('trophyTotal').innerHTML = total > 0
