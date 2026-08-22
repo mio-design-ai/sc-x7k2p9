@@ -145,10 +145,8 @@
   #gateHoldBar { width:80%; height:10px; background:#e8dcbb; border-radius:5px; margin:12px auto 0; overflow:hidden; }
   #gateHoldFill { height:100%; width:0%; background:#57a64a; transition:width .1s linear; }
   #gateQ { font-size:min(9vw,36px); font-weight:bold; color:#4a3218; margin-top:8px; }
-  #gateInput { font-size:min(8vw,32px); font-weight:bold; color:#2c5aa0; min-height:1.3em; border-bottom:3px solid #c2a86a; width:60%; margin:6px auto; }
-  #gatePad { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px; }
-  #gatePad .btn { background:#57a64a; font-size:min(5.5vw,22px); padding:10px 0; }
-  #gatePad .btn.gateDel { background:#b8b8b8; font-size:min(4vw,15px); }
+  #gatePad { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:10px; }
+  #gatePad .btn { background:#57a64a; font-size:min(4.6vw,18px); padding:12px 4px; }
   #gateCancel { background:#7f8c9b; font-size:14px; padding:10px 22px; margin-top:14px; }
   #breakEmoji { font-size:56px; animation:bob 1.6s ease-in-out infinite; margin:6px 0; }
   #breakCount { font-size:min(10vw,40px); font-weight:bold; color:#2c5aa0; margin:10px 0; }
@@ -160,7 +158,7 @@
   }
   #breakEveryBtns, #breakLenBtns { display:flex; gap:6px; justify-content:center; margin-bottom:8px; }
   #parentBox p { font-size:min(3.5vw,13px); color:#4a5d3a; font-weight:bold; margin-bottom:6px; }
-  #gradeBtns, #timeBtns { display:flex; gap:6px; justify-content:center; margin-bottom:8px; }
+  #gradeBtns, #timeBtns, #reviewCapBtns { display:flex; gap:6px; justify-content:center; margin-bottom:8px; }
   #timeBtns { margin-bottom:0; }
   .selBtn { background:#cfd8c4; color:#4a5d3a; font-size:min(3.8vw,14px); padding:7px 0; flex:1; box-shadow:0 3px 0 rgba(0,0,0,.2); }
   .selBtn.sel { background:#57a64a; color:#fff; }
@@ -198,6 +196,17 @@
   .nodeCircle.rimSilver { border-color:#9fa9b8; box-shadow:0 5px 0 rgba(0,0,0,.35), 0 0 10px rgba(205,215,230,.95); }
   .nodeCircle.rimGold { border-color:#e8b02a; box-shadow:0 5px 0 rgba(0,0,0,.35), 0 0 13px rgba(255,205,60,.95); }
   .nodeTree { margin-left:4px; }
+  .nodeGrad { position:absolute; top:-10px; left:-13px; font-size:17px; filter:drop-shadow(1px 1px 0 rgba(0,0,0,.35)); }
+  @keyframes gradGlow { 50% { box-shadow:0 5px 0 rgba(0,0,0,.35), 0 0 18px rgba(140,255,150,.95); border-color:#7de88a; } }
+  .nodeCircle.nextGlow { animation:gradGlow 1.2s ease-in-out infinite; }
+  .reviewBox { position:absolute; left:3%; width:94%; background:rgba(255,255,255,.85); border-radius:14px; padding:10px 8px 12px; z-index:2; text-align:center; }
+  .reviewTitle { font-weight:bold; color:#3f6d2e; font-size:min(4vw,15px); }
+  .reviewNote { font-size:min(3vw,11px); font-weight:bold; color:#8a6b3f; margin:2px 0 8px; line-height:1.5; }
+  .reviewGrid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .reviewBtn { background:#8fbf6a; font-size:min(3.1vw,12px); padding:8px 4px; line-height:1.45; }
+  .reviewBtn span { font-size:min(2.8vw,10px); color:#f2ffe0; }
+  .reviewBtn.reviewDone { background:#b8b8b8; }
+  .reviewBtn.reviewDone span { color:#fff; }
   #trophyBtn { background:#b8862e; font-size:12px; padding:6px 12px; }
   #trophyOverlay { position:absolute; inset:0; background:rgba(0,0,0,.62); display:none; align-items:center; justify-content:center; z-index:22; padding:14px; }
   #trophyOverlay.active { display:flex; }
@@ -654,9 +663,8 @@
       <div id="gateHoldBar"><div id="gateHoldFill"></div></div>
     </div>
     <div id="gateStep2" style="display:none">
-      <p id="gateGuide">答えを入力してください</p>
-      <div id="gateQ">38 × 7 = ?</div>
-      <div id="gateInput">&nbsp;</div>
+      <p id="gateGuide">この言葉の正しい読み方を選んでください</p>
+      <div id="gateQ">遂行</div>
       <div id="gatePad"></div>
     </div>
     <button class="btn" id="gateCancel">やめる</button>
@@ -669,6 +677,8 @@
   <div id="parentBox">
     <p>📚 学年</p>
     <div id="gradeBtns"></div>
+    <p>🌱 下の学年の復習は 1単元につき（🔒 超えたら卒業扱いでロック）</p>
+    <div id="reviewCapBtns"></div>
     <p>⏰ 1日に遊べる時間（🔒 ここでしか変えられません）</p>
     <div id="timeBtns"></div>
     <p>☁️ 休憩の間隔（連続で遊んだら休憩タイム）</p>
@@ -1002,6 +1012,7 @@ const state = {
   currentBlock: null,
   breaking: null,
   bossHp: 0,
+  bossHpMax: 0,
   isBossQ: false,
   lastWasBoss: false,
   timeLimitMin: store.get('timeLimitMin', 15),
@@ -1744,7 +1755,35 @@ function updatePetBuddy() {
   $('petBuddy').textContent = k ? petDefs[k].emoji : '';
 }
 
+// ---------- 🎓 学年連動ごほうび・そつぎょう制（2026-08-19） ----------
+// ねらい: かんたんな単元の周回が「たから稼ぎ」として一番おいしい状態をなくし、
+//         じぶんの学年の問題ほどレアが出るようにする（禁止ではなく誘導）
+const GRADE_ORDER = ['g1','g2','g3'];
+function unitGradeOf(u) {
+  const p = (u && u.id || '').slice(0,2);
+  return GRADE_ORDER.includes(p) ? p : store.get('grade','g1');
+}
+// 下の学年の単元（ふくしゅう）か？
+function isReviewUnit(u) {
+  return GRADE_ORDER.indexOf(unitGradeOf(u)) < GRADE_ORDER.indexOf(store.get('grade','g1'));
+}
+function graduData() { return store.get('gradu', {}); }
+// ごほうび ひかえめモード（ふくしゅう単元 or そつぎょう済み単元）
+function dropsEased() {
+  const u = state.unit;
+  if (!u || state.adv || u.bonus) return false;
+  return isReviewUnit(u) || !!graduData()[u.id];
+}
+// ふくしゅう単元の回数上限（保護者設定。0=せいげんなし）
+function reviewCap() { return store.get('reviewCap', 20); }
+function reviewLeft(u) {
+  const cap = reviewCap();
+  if (!cap) return Infinity;
+  return cap - (clearsData()[u.id] || 0);
+}
 function rollDrop() {
+  // 🌱 ふくしゅう・そつぎょう済みは どう・てつ ちゅうしん（レアは じぶんの がくねんで！）
+  if (dropsEased()) return Math.random() < .7 ? 'copper' : 'iron';
   let jackpot = state.depth >= 2 ? (0.03 + (state.combo >= 7 ? 0.05 : 0)) : 0;
   if (state.rainbowMode) jackpot += 0.12;
   jackpot += 0.02 * store.get('ench_sword', 0);   // ✨けんの エンチャント
@@ -1767,6 +1806,7 @@ function rollDrop() {
   return 'iron';
 }
 function rollChestDrop() {
+  if (dropsEased()) return Math.random() < .5 ? 'iron' : 'copper';
   const r = Math.random();
   if (r < .06) return 'rainbow';
   if (r < .42) return 'diamond';
@@ -2912,8 +2952,13 @@ function renderBreakBtns() {
   renderPickRow('breakEveryBtns', 'breakEvery', [{v:0,l:'なし'},{v:10,l:'10ぷんごと'},{v:15,l:'15ふんごと'},{v:20,l:'20ぷんごと'}], 15);
   renderPickRow('breakLenBtns', 'breakLen', [{v:3,l:'3ぷん'},{v:5,l:'5ふん'}], 3);
 }
+function renderReviewCapBtns() {
+  renderPickRow('reviewCapBtns', 'reviewCap',
+    [{v:10,l:'10回まで'},{v:20,l:'20回まで'},{v:30,l:'30回まで'},{v:0,l:'制限なし'}], 20);
+}
 function showSettings() {
   renderGradeBtns();
+  renderReviewCapBtns();
   renderTimeBtns();
   renderBreakBtns();
   $('todayPlayInfo').textContent = `⏰ 今日遊んだ時間: ${Math.floor(state.playedSec/60)}分`;
@@ -3016,8 +3061,9 @@ function renderReport() {
   });
   box.innerHTML = html;
 }
-// 👨‍👩‍👧 おうちのかたゲート（3びょう長押し → 2けた×1けたの計算）
-let gateOk = null, gateHoldTimer = null, gateAns = '', gateInputStr = '';
+// 👨‍👩‍👧 おうちのかたゲート（3びょう長押し → 中3レベルの漢字の読み6択）
+// ※計算問題は電卓で突破されるため廃止（2026-08-19）。読みは大人なら迷わず、小3までは読めない難度
+let gateOk = null, gateHoldTimer = null;
 function openGate(onOk) {
   gateOk = onOk;
   $('gateStep1').style.display = '';
@@ -3025,66 +3071,54 @@ function openGate(onOk) {
   $('gateHoldFill').style.width = '0%';
   $('gateOverlay').classList.add('active');
 }
-// 保護者ゲートの問題（数パターンをランダムに回す。小3までの子には解けない難度）
-let lastGateType = -1;
-function gateQuestion() {
-  let t;
-  do { t = randInt(0,4); } while (t === lastGateType);
-  lastGateType = t;
-  if (t === 0) {
-    const a = randInt(23,49), b = randInt(6,9);
-    return { q:`${a} × ${b} = ?`, a:String(a*b), g:'答えを入力してください' };
-  }
-  if (t === 1) {
-    let a, b;
-    do { a = randInt(302,921); b = randInt(45,98); } while (a%10 >= b%10);
-    return { q:`${a} − ${b} = ?`, a:String(a-b), g:'答えを入力してください' };
-  }
-  if (t === 2) {
-    const d = randInt(6,9), q2 = randInt(12,19);
-    return { q:`${d*q2} ÷ ${d} = ?`, a:String(q2), g:'答えを入力してください' };
-  }
-  if (t === 3) {
-    const base = pickOne([200,400,600,800,1200]), p = pickOne([25,50,75]);
-    return { q:`${base} の ${p}% = ?`, a:String(base*p/100), g:'答えを入力してください' };
-  }
-  const q2 = randInt(12,19), d = randInt(6,9);
-  return { q:`□ × ${d} = ${q2*d}`, a:String(q2), g:'□に入る数を入力してください' };
-}
+const KANJI_GATE = [
+  { w:'遂行', r:'すいこう',   d:['ついこう','とげこう','すいぎょう','ついぎょう','ちくこう'] },
+  { w:'均衡', r:'きんこう',   d:['きんしょう','ぐんこう','きんじゅう','いんこう','きんかん'] },
+  { w:'頻繁', r:'ひんぱん',   d:['ひんばん','びんぱん','らんぱん','ひんぼん','しんぱん'] },
+  { w:'曖昧', r:'あいまい',   d:['あいみ','おうまい','あいばい','まいまい','あいこん'] },
+  { w:'把握', r:'はあく',     d:['はおく','ばあく','ひあく','はしょう','はにぎ'] },
+  { w:'示唆', r:'しさ',       d:['じさ','しし','じすん','しゆう','じしゅん'] },
+  { w:'貢献', r:'こうけん',   d:['くけん','こうきん','みつけん','ぐけん','こうごん'] },
+  { w:'迅速', r:'じんそく',   d:['しんぞく','じんぞく','はやそく','じんしょく','ちんそく'] },
+  { w:'網羅', r:'もうら',     d:['こうら','あみら','もうろう','ぼうら','むうら'] },
+  { w:'妥協', r:'だきょう',   d:['たきょう','だこう','ようきょう','だぎょう','いきょう'] },
+  { w:'概念', r:'がいねん',   d:['きねん','かいねん','がいしん','げねん','がいめん'] },
+  { w:'促進', r:'そくしん',   d:['しょくしん','さくしん','そくじん','ぞくちん','せくしん'] },
+  { w:'頑丈', r:'がんじょう', d:['がんじゅう','かんじょう','がんちょう','げんじょう','がんぞう'] },
+  { w:'拝借', r:'はいしゃく', d:['へいしゃく','はいせき','ばいしゃく','はいさく','おがしゃく'] },
+  { w:'匿名', r:'とくめい',   d:['どくめい','じゃくめい','のうめい','わかめい','かくめい'] },
+  { w:'披露', r:'ひろう',     d:['はろう','ひりょう','へいろう','ぴろう','ひつゆ'] },
+  { w:'陳列', r:'ちんれつ',   d:['ちんれい','じんれつ','とんれつ','ちられつ','ちんねつ'] },
+  { w:'掲載', r:'けいさい',   d:['けいざい','きさい','けっさい','かいさい','けいせつ'] },
+  { w:'慎重', r:'しんちょう', d:['じんちょう','ちんちょう','しんじゅう','まんちょう','しんとう'] },
+  { w:'賢明', r:'けんめい',   d:['けんみょう','じんめい','きんめい','けんめん','かたるめい'] },
+];
+let lastGateIdx = -1;
 function gateToStep2() {
-  const gq = gateQuestion();
-  gateAns = gq.a;
-  gateInputStr = '';
-  $('gateGuide').textContent = gq.g;
-  $('gateQ').textContent = gq.q;
-  $('gateInput').innerHTML = '&nbsp;';
+  let i;
+  do { i = randInt(0, KANJI_GATE.length - 1); } while (i === lastGateIdx);
+  lastGateIdx = i;
+  const gq = KANJI_GATE[i];
+  $('gateGuide').textContent = 'この言葉の正しい読み方を選んでください';
+  $('gateQ').textContent = gq.w;
   const pad = $('gatePad');
   pad.innerHTML = '';
-  for (let d=0; d<=9; d++) {
+  shuffle([gq.r, ...gq.d]).forEach(reading => {
     const btn = document.createElement('button');
     btn.className = 'btn';
-    btn.textContent = d;
+    btn.textContent = reading;
     btn.addEventListener('click', () => {
-      gateInputStr += d;
-      $('gateInput').textContent = gateInputStr;
-      if (gateInputStr.length >= gateAns.length) {
-        if (gateInputStr === gateAns) {
-          $('gateOverlay').classList.remove('active');
-          if (gateOk) gateOk();
-        } else {
-          sfx.bad();
-          $('gateCard').classList.remove('shake'); void $('gateCard').offsetWidth; $('gateCard').classList.add('shake');
-          gateToStep2();
-        }
+      if (reading === gq.r) {
+        $('gateOverlay').classList.remove('active');
+        if (gateOk) gateOk();
+      } else {
+        sfx.bad();
+        $('gateCard').classList.remove('shake'); void $('gateCard').offsetWidth; $('gateCard').classList.add('shake');
+        gateToStep2();
       }
     });
     pad.appendChild(btn);
-  }
-  const del = document.createElement('button');
-  del.className = 'btn gateDel';
-  del.textContent = 'けす';
-  del.addEventListener('click', () => { gateInputStr = ''; $('gateInput').innerHTML = '&nbsp;'; });
-  pad.appendChild(del);
+  });
   $('gateStep1').style.display = 'none';
   $('gateStep2').style.display = '';
 }
@@ -3344,11 +3378,18 @@ const bossDefs = [
 function currentBossDef() {
   return bossDefs[Math.min(Math.max(Math.floor(state.depth/3)-1, 0), 2)];
 }
+// 👑 ボスの たいりょく: もぐるほど つよくなる（3→4→5→6→つよいボスは7でうちどめ）
+//    ※きみも レベルと そうびで つよくなるので、おなじ ペースで あがる
+function bossHpForDepth(d) {
+  return Math.min(7, 2 + Math.max(1, Math.ceil((d || 3) / 3)));
+}
 function renderBossHearts() {
-  $('bossHearts').textContent = '❤️'.repeat(state.bossHp) + '🖤'.repeat(3-state.bossHp);
+  const max = state.bossHpMax || 3;
+  $('bossHearts').textContent = '❤️'.repeat(Math.max(0,state.bossHp)) + '🖤'.repeat(Math.max(0, max - state.bossHp));
 }
 function setupBoss() {
-  state.bossHp = 3;
+  state.bossHpMax = bossHpForDepth(state.depth);
+  state.bossHp = state.bossHpMax;
   state.blocksLeft = 0;
   const def = currentBossDef();
   $('bossName').textContent = '👑 ' + def.name;
@@ -3357,7 +3398,7 @@ function setupBoss() {
   pixelMap(x, GOLEM_MAP, def.pal);
   renderBossHearts();
   $('petCheer').textContent = '';
-  $('stageMsg').textContent = '👑 ボスが あらわれた！ 3かい こうげきしよう！';
+  $('stageMsg').textContent = `👑 ボスが あらわれた！ ${state.bossHpMax}かい こうげきしよう！`;
 }
 function bossHit() {
   $('overlay').classList.remove('active');
@@ -3377,19 +3418,20 @@ function bossDefeat() {
   missionEvent('boss');
   store.set('bossKills', store.get('bossKills',0)+1);
   confettiBurst(50);
-  const drops = ['diamond', rollDrop(), rollChestDrop()];
+  const eased = dropsEased();
+  const drops = eased ? ['iron', rollDrop(), rollChestDrop()] : ['diamond', rollDrop(), rollChestDrop()];
   drops.forEach(k => { state.inv[k] = (state.inv[k]||0)+1; missionEvent('drop', k); });
   store.set('inv', state.inv);
-  renderInv('diamond');
+  renderInv(drops[0]);
   $('bossArea').style.display = 'none';
   gainEgg(1);
-  // ボスからは けんも かくてい！（つよい ボスほど いい けん）
+  // ボスからは けんも かくてい！（つよい ボスほど いい けん。ふくしゅう中は ひかえめ）
   const bossIdx = Math.min(Math.max(Math.floor(state.depth/3)-1, 0), 2);
-  const swordKind = ['iron','gold','diamond'][bossIdx];
+  const swordKind = eased ? ['copper','copper','iron'][bossIdx] : ['iron','gold','diamond'][bossIdx];
   gainSword(swordKind);
   const counts = {};
   drops.forEach(k=>counts[k]=(counts[k]||0)+1);
-  showGet('diamond', {
+  showGet(drops[0], {
     title:'👑 ボスを たおした！ たから 3こ ゲット！',
     sub: Object.keys(counts).map(k=>`${ores[k].name}×${counts[k]}`).join('　') + '　＋🥚たまご！',
   }, () => showSwordBanner(swordKind, () => { state.lastWasBoss = true; stageClear(); }));
@@ -3813,10 +3855,13 @@ function showMap() {
   let currentIdx = 0;
   units.forEach((u,i) => { if ((stars[u.id]||0) > 0) currentIdx = Math.min(i+1, N-1); });
   const clearsAll = clearsData();
+  const grad = graduData();
   units.forEach((u,i) => {
     const st = stars[u.id] || 0;
     const cl = clearsAll[u.id] || 0;
     const rim = cl >= 10 ? ' rimGold' : cl >= 5 ? ' rimSilver' : '';
+    // 🎓 まえの単元を そつぎょうしたら、つぎの単元が ひかる
+    const nextGlow = i > 0 && grad[units[i-1].id] && !grad[u.id] && st === 0 ? ' nextGlow' : '';
     const tr = treeStage(cl);
     const node = document.createElement('div');
     node.className = 'mapNode' + (u.gen.startsWith('mix') ? ' bossNode' : '');
@@ -3824,9 +3869,10 @@ function showMap() {
     node.style.top = (pts[i].y - 42) + 'px';
     node.style.animationDelay = (Math.min(i,8)*.1) + 's';
     node.innerHTML =
-      `<div class="nodeCircle${rim}">${u.icon}` +
+      `<div class="nodeCircle${rim}${nextGlow}">${u.icon}` +
         (st===0?'<span class="nodeNew">NEW</span>':'') +
         (medals[u.id]?`<span class="nodeMedal">${medals[u.id]===2?'🌈':'🏅'}</span>`:'') +
+        (grad[u.id]?'<span class="nodeGrad">🎓</span>':'') +
         (cl>=20?'<span class="nodeCrown">👑</span>':'') +
         (cl>0?`<span class="nodeCount">×${cl}</span>`:'') +
       `</div>` +
@@ -3857,6 +3903,38 @@ function showMap() {
   marker.style.left = `calc(${pts[currentIdx].x}% + ${pts[currentIdx].x > 50 ? -78 : 48}px)`;
   marker.style.top = (pts[currentIdx].y - 62) + 'px';
   list.appendChild(marker);
+  // 🌱 ふくしゅうの どうくつ（下の学年の単元。ごほうびひかえめ＋回数上限つき）
+  const gi = GRADE_ORDER.indexOf(gk);
+  if (gi > 0) {
+    const reviewUnits = [];
+    for (let ri = 0; ri < gi; ri++) CURRICULUM[GRADE_ORDER[ri]].units.forEach(u => reviewUnits.push(u));
+    const cap = reviewCap();
+    const box = document.createElement('div');
+    box.className = 'reviewBox';
+    box.style.top = (H - 14) + 'px';
+    box.innerHTML = `<div class="reviewTitle">🌱 ふくしゅうの どうくつ（まえの がくねん）</div>` +
+      `<div class="reviewNote">ここの たからは ひかえめ。レアは うえの ぼうけんで ザクザク でるよ！</div>`;
+    const rGrid = document.createElement('div');
+    rGrid.className = 'reviewGrid';
+    reviewUnits.forEach(u => {
+      const left = cap ? Math.max(0, cap - (clearsAll[u.id]||0)) : 0;
+      const done = cap > 0 && left <= 0;
+      const b = document.createElement('button');
+      b.className = 'btn reviewBtn' + (done ? ' reviewDone' : '');
+      b.innerHTML = `${u.icon} ${u.name}<br><span>${done ? '🎓 そつぎょう！' : (cap ? `のこり ${left}かい` : 'いつでも OK')}</span>`;
+      b.addEventListener('click', () => {
+        sfx.tap();
+        if (done) { toast('🎓 この たんげんは そつぎょうずみ！ うえの ぼうけんに いこう！'); return; }
+        state.unit = u;
+        if (!store.get('teach_'+u.id, false)) openTeach(u, true);
+        else startGame(u);
+      });
+      rGrid.appendChild(b);
+    });
+    box.appendChild(rGrid);
+    list.appendChild(box);
+    list.style.height = (H - 14 + box.offsetHeight + 16) + 'px';
+  }
   // 🌞 きょうのぼうけん カード
   const advDone = store.get('adv_'+dayKey(), false);
   $('advCard').classList.toggle('pulse', !advDone);
@@ -4406,6 +4484,12 @@ $('treasureClose').addEventListener('click', () => { $('treasureOverlay').classL
 // ---------- ステージ生成 ----------
 function blockTypeForDepth() {
   const d = state.depth;
+  // 🌱 ごほうびひかえめモード: 見た目＝中身ルールを守るため、レア鉱石ブロックじたいを出さない
+  if (dropsEased()) {
+    if (d===1) return ['grass','oakwood','birchwood','dirt','water'];
+    if (d===2) return ['dirt','stone','copper','oakwood','water'];
+    return ['stone','stone','dirt','copper','iron','water'];
+  }
   if (d===1) return ['grass','oakwood','birchwood','dirt','water'];
   if (d===2) return ['dirt','stone','copper','oakwood','water'];
   if (d<=4) return ['stone','stone','copper','iron','redstone','water'];
@@ -4685,6 +4769,7 @@ function handleCorrect() {
   updateCombo();
   missionEvent('combo', state.combo);
   tryStartFever();
+  trackGraduation();
   const templates = ['、すごい！⭐','、やったね！🎉','、てんさい！✨','、その ちょうし！🔥','、かんぺき！💯','、ナイス！👍'];
   p.textContent = wasRevenge
     ? `🔥リベンジ せいこう！！ ${playerName()}、みごと！！`
@@ -4695,10 +4780,33 @@ function handleCorrect() {
   const praiseMs = wasRevenge ? 2800 : (state.firstTryPending ? 2400 : 2000);
   setTimeout(state.isBossQ ? bossHit : enterBreakMode, praiseMs);
 }
+// 🎓 そつぎょう制: おなじ単元で 20問れんぞく正解 → そつぎょう（ごほうびが ひかえめになり、つぎの単元へ誘導）
+const GRADU_NEED = 20;
+function trackGraduation() {
+  const u = state.unit;
+  if (!u || state.test || state.adv || state.isBossQ || u.bonus || u.id === 'adv') return;
+  const gr = graduData();
+  if (gr[u.id]) return;
+  const sk = 'sotsu_' + u.id;
+  const v = store.get(sk, 0) + 1;
+  store.set(sk, v);
+  if (v >= GRADU_NEED) {
+    gr[u.id] = true;
+    store.set('gradu', gr);
+    confettiBurst(50);
+    const g = CURRICULUM[unitGradeOf(u)];
+    const next = g ? g.units.find(x => !graduData()[x.id] && x.id !== u.id && !(store.get('stars',{})[x.id])) : null;
+    setTimeout(() => toast(next
+      ? `🎓 「${u.name}」を そつぎょう！ つぎは「${next.name}」に ちょうせんしよう！`
+      : `🎓 「${u.name}」を そつぎょう！ ${GRADU_NEED}もん れんぞく せいかい、おみごと！`), 900);
+  }
+}
 function handleWrong(btn) {
   sfx.bad();
   recordAnswer(false);
   state.missedThis = true;
+  // 🎓 れんぞく正解カウントは まちがえたら リセット
+  if (state.unit && !state.test && !state.adv) store.set('sotsu_' + state.unit.id, 0);
   // 🔥 まちがえた もんだいは リベンジきゅうに ためる（あとで もどってくる）
   if (!state.test && !state.adv && state.current) {
     state.revengeQ = state.revengeQ || [];
@@ -4859,7 +4967,8 @@ function finishBreak() {
       if (br.special === 'tntY') { state.inv.gold = (state.inv.gold||0)+1; store.set('inv', state.inv); renderInv(); bonusSub = '　🪙 きん×1 ゲット！'; }
       const after = power===3
         ? () => { // しろTNTは けんも かくてい！
-            const sk = Math.random() < .08 ? 'rainbow' : pickOne(['copper','iron','redstone','gold','diamond']);
+            const sk = dropsEased() ? pickOne(['copper','iron'])
+              : Math.random() < .08 ? 'rainbow' : pickOne(['copper','iron','redstone','gold','diamond']);
             gainSword(sk);
             showSwordBanner(sk, afterBanner);
           }
@@ -4913,6 +5022,7 @@ function finishBreak() {
   // ⭐いっぱつせいかいボーナス：こうせきなら おなじものを もう1こ、ふつうのブロックなら 1ランクアップ
   if (firstTry) {
     if (oreKind) kinds.push(oreKind);
+    else if (dropsEased()) kinds.push(kinds[0]);          // ひかえめ中は ランクアップでなく おなじものを もう1こ
     else kinds[0] = upgradeTier(kinds[0]);
     bonusNotes.push('⭐いっぱつせいかい ボーナス！');
   }
@@ -5657,6 +5767,12 @@ function stageClear() {
 }
 $('nextBtn').addEventListener('click', () => {
   $('clearOverlay').classList.remove('active');
+  // 🌱 ふくしゅう単元が 回数上限に とどいたら マップへ（そつぎょう おいわい）
+  if (state.unit && isReviewUnit(state.unit) && reviewCap() > 0 && reviewLeft(state.unit) <= 0) {
+    toast(`🎓 「${state.unit.name}」は そつぎょう！ うえの ぼうけんで レアを さがそう！`);
+    showMap();
+    return;
+  }
   state.depth++;
   buildStage();
 });
@@ -5696,6 +5812,8 @@ function startGame(unit) {
       showGet('diamond', { sub:'🎁 きょうの ログインボーナス！' });
     }, 500);
   }
+  // 🌱 ふくしゅうたんげんの おしらせ（まえむきに）
+  if (isReviewUnit(unit)) setTimeout(() => toast('🌱 ふくしゅうタイム！ レアな たからは うえの ぼうけんで ザクザク でるよ！'), 1800);
 }
 
 // 🎵 さいしょの タップで おんがくを スタート
