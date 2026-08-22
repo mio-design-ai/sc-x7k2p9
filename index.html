@@ -112,6 +112,7 @@
     box-shadow:inset 0 3px 8px rgba(0,0,0,.35); display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:2px;
   }
+  .plot.canFert { border-color:#c8a24a; box-shadow:inset 0 3px 8px rgba(0,0,0,.35), 0 0 10px rgba(240,220,120,.7); }
   .plot .pEm { font-size:min(9vw,36px); filter:drop-shadow(1px 2px 1px rgba(0,0,0,.4)); }
   .plot .pTx { font-size:10px; font-weight:bold; color:#fff; text-shadow:1px 1px 0 rgba(0,0,0,.6); }
   .plot.ready { border-color:#ffe74a; box-shadow:inset 0 3px 8px rgba(0,0,0,.35), 0 0 12px rgba(255,231,74,.8); }
@@ -1646,6 +1647,7 @@ const ores = {
 const TIER = ['copper','iron','redstone','gold','diamond'];
 // ⚔️ けん（こうせきから まれに みつかる）
 const swordDefs = {
+  wood:     { name:'きの けん' },
   copper:   { name:'どうの けん' },
   iron:     { name:'てつの けん' },
   redstone: { name:'レッドストーンの けん' },
@@ -1659,6 +1661,7 @@ function drawSword(kind) {
   c.className = 'pix';
   const x = c.getContext('2d');
   const pals = {
+    wood:     ['#8a5c33','#c89858'],
     copper:   ['#e0803f','#f7b581'],
     iron:     ['#cfd6dd','#f0f4f8'],
     redstone: ['#e84a3a','#ff8a7a'],
@@ -3388,7 +3391,10 @@ function renderBossHearts() {
   $('bossHearts').textContent = '❤️'.repeat(Math.max(0,state.bossHp)) + '🖤'.repeat(Math.max(0, max - state.bossHp));
 }
 function setupBoss() {
-  state.bossHpMax = bossHpForDepth(state.depth);
+  // 🛡️ たてを そうびしていると ボスの たいりょくが へる（さいてい2かいは のこる）
+  const cut = equippedShieldCut();
+  state.bossShieldCut = cut;
+  state.bossHpMax = Math.max(2, bossHpForDepth(state.depth) - cut);
   state.bossHp = state.bossHpMax;
   state.blocksLeft = 0;
   const def = currentBossDef();
@@ -3398,7 +3404,8 @@ function setupBoss() {
   pixelMap(x, GOLEM_MAP, def.pal);
   renderBossHearts();
   $('petCheer').textContent = '';
-  $('stageMsg').textContent = `👑 ボスが あらわれた！ ${state.bossHpMax}かい こうげきしよう！`;
+  $('stageMsg').textContent = `👑 ボスが あらわれた！ ${state.bossHpMax}かい こうげきしよう！`
+    + (state.bossShieldCut ? `　🛡️ たてパワーで ${state.bossShieldCut}かい ぶん らくになった！` : '');
 }
 function bossHit() {
   $('overlay').classList.remove('active');
@@ -3514,6 +3521,15 @@ function drawAvatar(cv, cfg, pose, lv) {
       else if (pose==='walk2') { px(5,15,2,3,col); px(9,14,2,3,col); }
       else { px(5,14,2,3,col); px(9,14,2,3,col); }
     }
+    // 🛡️ たては ひだりの うでに もつ
+    const sm = chosenMat('shield');
+    if (sm && gearPals[sm]) {
+      const g = gearPals[sm];
+      px(1,8,4,6,g.m);
+      px(1,8,4,1,g.l); px(1,8,1,6,g.l);
+      px(4,8,1,6,g.d); px(1,13,4,1,g.d);
+      px(2,10,2,2,g.l);
+    }
   } catch(e){}
 }
 function refreshAvatar(pose) {
@@ -3592,7 +3608,7 @@ function renderGearOptions(box) {
   const gear = store.get('gear', {});
   const owned = {};
   EQUIP_PIECES.forEach(p => {
-    owned[p] = TIER.filter(m => (gear[p+'_'+m]||0) > 0);
+    owned[p] = GEAR_MATS.filter(m => (gear[p+'_'+m]||0) > 0);
   });
   const anyOwned = EQUIP_PIECES.some(p => owned[p].length > 0);
   const head = document.createElement('div');
@@ -5134,7 +5150,14 @@ const pieceDefs = {
   chest:  { name:'アーマー',   cost:8 },
   legs:   { name:'レギンス',   cost:7 },
   boots:  { name:'ブーツ',     cost:4 },
+  shield: { name:'たて',       cost:6 },
 };
+// 🧱 そうびに つかえる そざい（よわい→つよい の じゅんばん。き と にじダイヤを ついか）
+const GEAR_MATS = ['wood','copper','redstone','iron','gold','diamond','rainbow'];
+// にじダイヤは とても レアなので ひつような かずを すくなくする
+const matCostOf = (piece, mat) => mat === 'rainbow'
+  ? Math.max(1, Math.ceil(pieceDefs[piece].cost * .4))
+  : pieceDefs[piece].cost;
 const matNameOf = m => m === 'wood' ? 'き' : (ores[m] ? ores[m].name : m);
 function drawGear(piece, mat) {
   const c = document.createElement('canvas');
@@ -5159,6 +5182,14 @@ function drawGear(piece, mat) {
     px(3,5,4,6,p.m); px(9,5,4,6,p.m);
     px(3,5,4,1,p.l); px(9,5,4,1,p.l);
     px(3,11,6,2,p.d); px(9,11,6,2,p.d);
+  } else if (piece === 'shield') {
+    // 🛡️ たて: しかくい ふちどり＋まんなかに クロス（かくばった ドット絵）
+    px(3,1,10,11,p.m);
+    px(3,1,10,1,p.l); px(3,1,1,11,p.l);
+    px(12,1,1,11,p.d); px(3,11,10,1,p.d);
+    px(4,12,8,1,p.d); px(5,13,6,1,p.d);
+    px(6,3,4,7,p.l); px(4,5,8,3,p.l);
+    px(7,4,2,5,p.d); px(5,6,6,1,p.d);
   } else if (piece === 'helmet') {
     px(4,3,8,2,p.l); px(3,5,10,3,p.m); px(3,8,3,4,p.m); px(10,8,3,4,p.m);
     px(3,5,10,1,p.l); px(3,11,3,1,p.d); px(10,11,3,1,p.d);
@@ -5173,10 +5204,16 @@ function drawGear(piece, mat) {
 }
 function bestMat(piece) {
   const gear = store.get('gear', {});
-  for (let i = TIER.length-1; i >= 0; i--) {
-    if (gear[piece+'_'+TIER[i]] > 0) return TIER[i];
+  for (let i = GEAR_MATS.length-1; i >= 0; i--) {
+    if (gear[piece+'_'+GEAR_MATS[i]] > 0) return GEAR_MATS[i];
   }
   return null;
+}
+// 🛡️ たての ちから: そうびしている たての そざいで ボスの たいりょくが へる
+const shieldCut = { wood:1, copper:1, redstone:1, iron:2, gold:2, diamond:3, rainbow:3 };
+function equippedShieldCut() {
+  const m = chosenMat('shield');
+  return m ? (shieldCut[m] || 0) : 0;
 }
 function woodTotal() { return (state.inv.oakwood||0) + (state.inv.birchwood||0); }
 function consumeWood(n) {
@@ -5207,44 +5244,49 @@ function showCraftBanner(cv, name, mat, onDone) {
 let craftMat = 'copper';
 function craftRecipes() {
   const m = craftMat;
-  const mName = ores[m].name;
+  const mName = matNameOf(m);
+  const cut = shieldCut[m] || 1;
+  const need = p => [[m, matCostOf(p, m)]];
   return [
     { key:'sword_'+m, name:`${mName}の けん`, icon:()=>drawSword(m),
-      needs:[[m,2],['stick',1]],
+      needs:[[m,m==='rainbow'?1:2],['stick',1]],
       give:()=>{ gainSword(m); showSwordBanner(m); } },
     { key:'pick_'+m, name:`${mName}の つるはし`, icon:()=>drawGear('pick',m),
-      needs:[[m,3],['stick',2]],
+      needs:[[m,matCostOf('pick',m)],['stick',2]],
       give:()=>{ giveGear('pick',m); } },
+    { key:'shield_'+m, name:`${mName}の たて（ボスの たいりょくが ${cut}へる！）`, icon:()=>drawGear('shield',m),
+      needs:need('shield'),
+      give:()=>{ giveGear('shield',m); } },
     { key:'helmet_'+m, name:`${mName}の ヘルメット`, icon:()=>drawGear('helmet',m),
-      needs:[[m,pieceDefs.helmet.cost]],
+      needs:need('helmet'),
       give:()=>{ giveGear('helmet',m); } },
     { key:'chest_'+m, name:`${mName}の アーマー`, icon:()=>drawGear('chest',m),
-      needs:[[m,pieceDefs.chest.cost]],
+      needs:need('chest'),
       give:()=>{ giveGear('chest',m); } },
     { key:'legs_'+m, name:`${mName}の レギンス`, icon:()=>drawGear('legs',m),
-      needs:[[m,pieceDefs.legs.cost]],
+      needs:need('legs'),
       give:()=>{ giveGear('legs',m); } },
     { key:'boots_'+m, name:`${mName}の ブーツ`, icon:()=>drawGear('boots',m),
-      needs:[[m,pieceDefs.boots.cost]],
+      needs:need('boots'),
       give:()=>{ giveGear('boots',m); } },
   ];
 }
 // ⛏️ つるはしの ランクで こわすのに ひつような タップかいすうが かわる
 // なし=4かい／どう・レッドストーン=3かい／てつ・きん=2かい／ダイヤ=1かい
-const pickTaps = { copper:3, redstone:3, iron:2, gold:2, diamond:1 };
+const pickTaps = { wood:3, copper:3, redstone:3, iron:2, gold:2, diamond:1, rainbow:1 };
 function equippedPick() {
   const gear = store.get('gear', {});
   const sel = store.get('equipSel', {}).pick;
   if (sel === 'none') return null;
   if (sel && sel !== 'auto' && (gear['pick_'+sel]||0) > 0) return sel;
   let best = null;
-  TIER.forEach(m => {
+  GEAR_MATS.forEach(m => {
     if (gear['pick_'+m] > 0 && (!best || pickTaps[m] < pickTaps[best])) best = m;
   });
   return best;
 }
 // 👕 そうびの えらびかた: 'auto'=いちばんいいの / 'none'=はずす / それいがい=えらんだ そざい
-const EQUIP_PIECES = ['pick','helmet','chest','legs','boots'];
+const EQUIP_PIECES = ['pick','shield','helmet','chest','legs','boots'];
 function chosenMat(piece) {
   if (piece === 'pick') return equippedPick();
   const sel = store.get('equipSel', {})[piece];
@@ -5448,10 +5490,11 @@ function renderCraft() {
   // そざい えらび
   const mats = $('craftMats');
   mats.innerHTML = '';
-  TIER.forEach(m => {
+  GEAR_MATS.forEach(m => {
     const chip = document.createElement('div');
     chip.className = 'matChip' + (craftMat === m ? ' sel' : '');
-    chip.appendChild(drawItem(m));
+    chip.title = matNameOf(m);
+    chip.appendChild(drawItem(m === 'wood' ? 'oakwood' : m));
     chip.addEventListener('click', () => { craftMat = m; sfx.tap(); renderCraft(); });
     mats.appendChild(chip);
   });
@@ -5473,25 +5516,28 @@ const cropDefs = {
 function resHave(k) {
   if (k==='seed') return store.get('seeds',0);
   if (k==='egg') return store.get('eggs',0);
+  if (k==='fert') return store.get('ferts',0);
   if (cropDefs[k]) { const c = store.get('crops',{}); return c[k]||0; }
   return state.inv[k]||0;
 }
 function resAdd(k,n) {
   if (k==='seed') { store.set('seeds', store.get('seeds',0)+n); return; }
   if (k==='egg') { gainEgg(n); return; }
+  if (k==='fert') { store.set('ferts', store.get('ferts',0)+n); return; }
   if (cropDefs[k]) { const c = store.get('crops',{}); c[k]=(c[k]||0)+n; store.set('crops',c); return; }
   state.inv[k]=(state.inv[k]||0)+n; store.set('inv',state.inv);
 }
 function resPay(k,n) {
   if (k==='seed') { store.set('seeds', store.get('seeds',0)-n); return; }
+  if (k==='fert') { store.set('ferts', store.get('ferts',0)-n); return; }
   if (cropDefs[k]) { const c = store.get('crops',{}); c[k]-=n; store.set('crops',c); return; }
   state.inv[k]-=n; store.set('inv',state.inv);
 }
 function resIconEl(k) {
-  if (k==='seed'||k==='egg'||cropDefs[k]) {
+  if (k==='seed'||k==='egg'||k==='fert'||cropDefs[k]) {
     const s = document.createElement('span');
     s.className = 'tEm';
-    s.textContent = k==='seed' ? '🌱' : k==='egg' ? '🥚' : cropDefs[k].emoji;
+    s.textContent = k==='seed' ? '🌱' : k==='egg' ? '🥚' : k==='fert' ? '🦴' : cropDefs[k].emoji;
     return s;
   }
   return drawItem(k);
@@ -5499,6 +5545,7 @@ function resIconEl(k) {
 function resName(k) {
   if (k==='seed') return 'たね';
   if (k==='egg') return 'たまご';
+  if (k==='fert') return 'ひりょう';
   if (cropDefs[k]) return cropDefs[k].name;
   return ores[k].name;
 }
@@ -5508,6 +5555,9 @@ const tradeDefs = [
   { give:[['redstone',3]], get:[['gold',1]] },
   { give:[['gold',5]],     get:[['diamond',1]] },
   { give:[['copper',3]],   get:[['seed',2]] },
+  { give:[['copper',4]],   get:[['fert',1]] },
+  { give:[['iron',3]],     get:[['fert',3]] },
+  { give:[['potato',2]],   get:[['fert',2]] },
   { give:[['carrot',5]],   get:[['gold',2]] },
   { give:[['diamond',2]],  get:[['egg',1]] },
   { give:[['rainbow',1]],  get:[['egg',3]] },
@@ -5557,7 +5607,8 @@ function renderTrade() {
 }
 function daysBetween(a,b) { try { return Math.round((new Date(b) - new Date(a)) / 86400000); } catch(e){ return 0; } }
 function renderFarm() {
-  $('farmInfo').textContent = `🌱 たね ×${store.get('seeds',0)}（くさブロックや とりひきで あつまる。1にちごとに そだつよ！）`;
+  $('farmInfo').innerHTML = `🌱 たね ×${store.get('seeds',0)}　🦴 ひりょう ×${store.get('ferts',0)}`
+    + `<br><span style="font-size:min(3.2vw,12px)">ひりょうを あげると 1にち ぶん はやく そだつよ！（ラマの とりひきで もらえる）</span>`;
   const plotsEl = $('farmPlots');
   plotsEl.innerHTML = '';
   const farm = store.get('farm', [null,null,null,null,null,null]);
@@ -5576,9 +5627,25 @@ function renderFarm() {
         renderFarm();
       });
     } else {
-      const st = Math.min(2, daysBetween(pl.day, dayKey()));
+      const st = Math.min(2, daysBetween(pl.day, dayKey()) + (pl.boost||0));
       if (st < 2) {
-        div.innerHTML = `<span class="pEm">${st===0?'🌱':'🌿'}</span><span class="pTx">${st===0?'めが でた！':'そだってる！'}<br>あと ${2-st}にち</span>`;
+        const ferts = store.get('ferts',0);
+        div.innerHTML = `<span class="pEm">${st===0?'🌱':'🌿'}</span>`
+          + `<span class="pTx">${st===0?'めが でた！':'そだってる！'}<br>あと ${2-st}にち`
+          + (ferts>0 ? '<br>🦴 タップで ひりょう！' : '') + `</span>`;
+        if (ferts > 0) {
+          div.classList.add('canFert');
+          div.addEventListener('click', () => {
+            if (store.get('ferts',0) <= 0) { toast('🦴 ひりょうが ないよ！ ラマの とりひきで もらえるよ！'); return; }
+            store.set('ferts', store.get('ferts',0)-1);
+            pl.boost = (pl.boost||0) + 1;
+            store.set('farm', farm);
+            sfx.chirp();
+            confettiBurst(12);
+            toast('🦴 ひりょうを あげた！ 1にち ぶん はやく そだったよ！');
+            renderFarm();
+          });
+        }
       } else {
         div.classList.add('ready');
         div.innerHTML = `<span class="pEm">${cropDefs[pl.crop].emoji}</span><span class="pTx">しゅうかく！</span>`;
